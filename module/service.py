@@ -2,7 +2,6 @@
 # coding=utf-8
 
 import os
-import sys
 import logging
 logger = logging.getLogger(__name__)
 import traceback
@@ -12,6 +11,7 @@ import subprocess
 from sqlalchemy import Column, Integer, Text
 
 import storage
+import runtime
 import runtime.path
 from runtime import env
 from base import Base
@@ -29,6 +29,10 @@ class Service(Base):
     env = Column(Text)
 
     def _start(self):
+        if self.name in list_running_services():
+            runtime.eerror("service `%s' is already running." % self.name)
+            return
+
         ENV_DICT = env.all_dict()
         ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), self.name)
         ENV_DICT['DIR_ADDON_CONFIG'] = runtime.path.join(env.get('dir_config'), self.name)
@@ -40,35 +44,37 @@ class Service(Base):
         self.env = json.loads(self.env)
         for key, value in self.env.items():
             self.env[key] = value.format(**ENV_DICT)
-        print cmd
+        runtime.einfo(cmd)
         logger.debug(cmd)
-        sys.stdout.write("start service `%s'.%s" % (self.name, os.linesep))
-        sys.stdout.flush()
+        runtime.einfo("start service `%s'." % self.name)
         p = subprocess.Popen(cmd.split(), env=self.env)
-        # print p.pid
+        runtime.einfo(p.pid)
 
     def _stop(self):
+        if self.name not in list_running_services():
+            runtime.eerror("service `%s' is not running." % self.name)
+            return
+
         ENV_DICT = env.all_dict()
         ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), self.name)
         _real_exe = self.start.split()[0].format(**ENV_DICT)
         for _p in psutil.process_iter():
             try:
                 if _p.exe == _real_exe:
-                    print _p.pid
+                    runtime.einfo(_p.pid)
                     _p.terminate()
             except psutil.AccessDenied:
                 pass
             except IndexError:
                 pass
             except Exception, e:
-                print e
+                runtime.eerror(e)
                 traceback.print_exc()
 
         # if not _process:
         #     sys.stderr.write("service `%s' is not running.%s" % (self.name, os.linesep))
         #     sys.stderr.flush()
-        sys.stdout.write("stop service `%s'%s" % (self.name, os.linesep))
-        sys.stdout.flush()
+        runtime.einfo("stop service `%s'." % self.name)
         # print repr(_process.get_children())
         # for _child in _process.get_children():
         #     _exe = _child.cmdline[0].replace(os.path.sep, '/').replace('.exe', '')
@@ -85,13 +91,13 @@ class Service(Base):
 
 def get(name):
     with storage.get_session() as session:
-        return session.query(Service).filter(name=name).first()
+        return session.query(Service).filter_by(name=name).first()
 
 def list_all():
     with storage.get_session() as session:
         rs = session.query(Service).all()
         return rs
-        
+
 def all_services_exe():
     ENV_DICT = env.all_dict()
     items = {}
@@ -125,6 +131,6 @@ def list_running_services():
         except IndexError:
             pass
         except Exception, e:
-            print e
+            runtime.eerror(e)
             traceback.print_exc()
     return rs

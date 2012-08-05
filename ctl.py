@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+"""Usage:
+    ctl.py service [--start=NAME | --start-all] [-v | --verbose] [-d | --debug]
+    ctl.py service [--stop=NAME | --stop-all] [-v | --verbose] [-d | --debug]
+    ctl.py service [--restart=NAME | --restart-all] [-v | --verbose] [-d | --debug]
+    ctl.py service [--running | --list] [-v | --verbose] [-d | --debug]
+    ctl.py repair  [-v | --verbose] [-d | --debug]
+    ctl.py version
+
+"""
+
 import os
-import sys
 import yaml
 import logging
 import logging.handlers
@@ -11,7 +20,7 @@ logger = logging.getLogger()
 import traceback
 import json
 from tornado import template
-from optparse import OptionParser, OptionGroup
+from docopt import docopt
 
 import storage
 import runtime.path
@@ -33,38 +42,6 @@ handler = logging.handlers.TimedRotatingFileHandler(
 handler.setFormatter(formatter)
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
-
-def parse_command_line():
-    parser = OptionParser()
-    
-    # {{{ service command
-    group = OptionGroup(parser, "command servie options", "only for service command")
-    
-    group.add_option('--start', dest='start', action='store',
-        help='start a service.')
-        
-    group.add_option('--start-all', dest='start_all', action='store_true',
-        help='start all enabled services.')
-    
-    group.add_option('--stop', dest='stop', action='store',
-        help='stop a service.')
-        
-    group.add_option('--stop-all', dest='stop_all', action='store_true',
-        help='stop all services.')
-    
-    group.add_option('--restart', dest='restart', action='store',
-        help='restart a service.')
-        
-    group.add_option('--restart-all', dest='restart_all', action='store_true',
-        help='restart all services.')
-        
-    group.add_option('--running', dest='running', action='store_true',
-        help='list all running services.')
-    
-    parser.add_option_group(group)
-    # }}}
-    
-    return parser.parse_args(sys.argv[1:])
 
 def _load_addon(addon_desc):
     # pprint(addon_desc)
@@ -138,32 +115,35 @@ def gen_config():
                     fp.write(content)
                     # print dst
             # exit(0)
-            
+
 def do_service(options):
-    if options.start_all:
+    if options['--start-all']:
         for _service in service.list_all():
             _service._start()
-    elif options.start:
-        _service = service.get(options.start)
+    elif options['--start']:
+        _service = service.get(options['--start'])
         _service._start()
-    elif options.stop_all:
+    elif options['--stop-all']:
         for _service in service.list_all():
             _service._stop()
-    elif options.stop:
-        _service = service.get(options.start)
+    elif options['--stop']:
+        _service = service.get(options['--stop'])
         _service._stop()
-    elif options.restart_all:
+    elif options['--restart-all']:
         for _service in service.list_all():
             _service._restart()
-    elif options.restart:
-        _service = service.get(options.start)
+    elif options['--restart']:
+        _service = service.get(options['--restart'])
         _service._restart()
-    elif options.running:
+    elif options['--running']:
         for _service in service.list_running_services():
             print _service
+    elif options['--list']:
+        for _service in service.list_all():
+            print _service.name
     else:
         print 'do nothing.'
-    
+
 def do_repair(options):
     load_addons()
     for _addon in addon.list_all():
@@ -172,17 +152,12 @@ def do_repair(options):
 
 def main():
     storage.init()
-    
-    if len(sys.argv) < 2:
-        print 'too few arguments.'
-        sys.exit(1)
-    
-    cmd = sys.argv[1]
-    (options, args) = parse_command_line()
-    
-    if cmd == 'service':
+
+    options = docopt(__doc__, version='0.1.0')
+
+    if options['service']:
         do_service(options)
-    elif cmd == 'repair':
+    elif options['repair']:
         do_repair(options)
 
 if __name__ == '__main__':
