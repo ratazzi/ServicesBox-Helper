@@ -1,24 +1,44 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+"""Usage:
+    app [--bind=ADDRESS] [--port=PORT] [-v | --verbose] [-d | --debug]
+
+"""
+
+import logging
+import traceback
 import tornado.web
 import tornado.ioloop
 import tornado.httpserver
-
+# import eventlet
+from eventlet.green import os
 from jinja2 import Environment, FileSystemLoader
+from docopt import docopt
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("It's running.")
+logger = logging.getLogger()
+console = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(name)s %(lineno)s %(message)s')
+console.setFormatter(formatter)
+console.setLevel(logging.DEBUG)
+logger.addHandler(console)
+logger.setLevel(logging.DEBUG)
+
+import handler
+import runtime.path
+
+runtime.path.bootstrap()
 
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/.*', MainHandler),
+            (r'/websocket/.*', handler.ActivityHandler),
+            (r'/api/service', handler.ServiceHandler),
+            (r'/.*', handler.MainHandler),
         ]
         settings = dict(
-            template_path='templates',
-            static_path='static',
+            template_path=os.path.join(os.path.dirname(__file__), 'templates'),
+            static_path=os.path.join(os.path.dirname(__file__), 'static'),
             cookie_secret='11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=',
             login_url='/signin/',
             debug=True,
@@ -28,14 +48,19 @@ class Application(tornado.web.Application):
         self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
         # self.jinja.filters['timeline'] = timeline
 
-def main():
-    http_server = tornado.httpserver.HTTPServer(Application())
-    http_server.listen(8080)
-    tornado.ioloop.IOLoop.instance().start()
-
 if __name__ == '__main__':
+    options = docopt(__doc__, version='0.1.0')
+
     try:
-        main()
+        http_server = tornado.httpserver.HTTPServer(Application())
+        addr = options['--bind'] or ''
+        port = options['--port'] and int(options['--port']) or 8000
+        logger.debug("listen on ('%s', %d)" % (addr, port))
+        http_server.listen(port, addr)
+        tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         tornado.ioloop.IOLoop.instance().stop()
         print 'exited.'
+    except Exception, e:
+        logger.error(e)
+        logger.error(traceback.format_exc())

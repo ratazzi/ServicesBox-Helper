@@ -8,6 +8,7 @@
     ctl.py service [--running | --list] [-v | --verbose] [-d | --debug]
     ctl.py repair  [-v | --verbose] [-d | --debug]
     ctl.py version
+    ctl.py test
 
 """
 
@@ -159,6 +160,11 @@ def main():
         do_service(options)
     elif options['repair']:
         do_repair(options)
+    elif options['test']:
+        from pprint import pprint
+        from core import activity
+        pprint(activity.services_activity())
+        exit(0)
 
 if __name__ == '__main__':
     main()

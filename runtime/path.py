@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import os
 import sys
 import glob
+from eventlet.green import os
 
 import env
 
-DEFAULT_DIRS = {'config': '0755', 'tmp': '0777',
-    'data': '0755', 'log': '0755', 'run': '0755'}
+DEFAULT_DIRS = {'config': '0755', 'tmp': '0777', 'data': '0755', 'log': '0755', 'run': '0755'}
 
 def join(*args):
     return os.path.join(*args).replace(os.path.sep, '/')
@@ -27,7 +26,7 @@ def bootstrap():
     env.add('dir_log', os.path.join(base_dir, 'var', 'log'))
     env.add('dir_run', os.path.join(base_dir, 'var', 'run'))
 
-    for k , _dir in os.environ.items():
+    for k, _dir in os.environ.items():
         if k.startswith('X_DIR_'):
             if not os.path.exists(_dir):
                 os.makedirs(_dir)

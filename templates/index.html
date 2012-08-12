@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block head %}
+<script type="text/javascript" src="{{ static_url('service.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('tojson.js') }}"></script>
+{% endblock %}
+{% block content %}
+<div id="content" class="span9">
+    <div class="span8">&nbsp;</div>
+    <div id="activity">
+
+        <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
+            <div style="float: right;">
+                <button id="start-all-services" class="btn">启动所有服务</button>
+                <button id="stop-all-services" class="btn">停止所有服务</button>
+                <button id="restart-all-services" class="btn">重启所有服务</button>
+            </div>
+        </div>
+
+        {% for service in services %}
+        <div id="{{ service.name }}" class="span9 event_">
+            <div class="span1"><i class="icon-play status" style="font-size: 48px;"></i></div>
+            <div class="span6">
+                <h4>{{ service.name }}</h4>
+                <p>{{ service.description }}</p>
+                <div>
+                    <div class="btn-group" style="width: auto; float: left;">
+                        <button class="btn active start-service" name="{{ service.name }}">启动</button>
+                        <button class="btn stop-service" name="{{ service.name }}">停止</button>
+                    </div>
+                    <div>
+                        <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>重启</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta content="True" name="HandheldFriendly" />
+        <meta content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0; name='viewport'" />
+        <title></title>
+        <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('bootstrap.css') }}" />
+        <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('style.css') }}" />
+        <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('fontllo.css') }}" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <script type="text/javascript" src="{{ static_url('jquery.min.js') }}"></script>
+        {% block head %}
+        {% endblock %}
+    </head>
+
+    <body>
+        <div class="container" style="border:1px solid #ccc;">
+            <div id="header" class="span12">
+                <div id="logo">Nanomites</div>
+                <div id="tool"></div>
+                <div id="meta">
+                    <a><i class="icon-user"></i>&nbsp;ratazzi</a>
+                    <a>设置</a>
+                    <a>登出</a>
+                </div>
+            </div>
+
+            <!-- begin sidebar -->
+            {% include 'sidebar.html' %}
+            <!-- end sidebar -->
+
+            <!-- begin content -->
+            {% block content %}
+            {% endblock %}
+            <!-- end content -->
+
+        </div>
+    </body>
+</html>
+<!-- vim: set ft=jinja: -->

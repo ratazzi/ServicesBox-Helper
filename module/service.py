@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import os
 import logging
 logger = logging.getLogger(__name__)
 import traceback
 import json
 import psutil
-import subprocess
 from sqlalchemy import Column, Integer, Text
+from eventlet.green import os, subprocess
 
 import storage
 import runtime

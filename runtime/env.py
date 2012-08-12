@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import os
+from eventlet.green import os
 
-PREFIX = 'X_'
+PREFIX = 'ServicesBox_'
 
 def add(name, value):
     _name = '%s%s' % (PREFIX, name.upper())
