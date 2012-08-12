@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('options.css') }}" />
-<!-- <script type="text/javascript" src="{{ static_url('service.js') }}"></script> -->
-<!-- <script type="text/javascript" src="{{ static_url('tojson.js') }}"></script> -->
-<!-- <script type="text/javascript" src="{{ static_url('jquery.uitablefilter.js') }}"></script> -->
-<!-- <script type="text/javascript" src="{{ static_url('jquery.uitableedit.js') }}"></script> -->
+<link rel="stylesheet" type="text/less" media="screen"  href="{{ static_url('options.less') }}" />
 <script type="text/javascript" src="{{ static_url('DataTables/jquery.DataTables.min.js') }}"></script>
 <script type="text/javascript" src="{{ static_url('DataTables/jquery.jeditable.js') }}"></script>
 <script type="text/javascript" src="{{ static_url('DataTables/jquery-ui.js') }}"></script>
@@ -18,12 +14,20 @@
 <div id="content" class="span9">
     <div class="span8">&nbsp;</div>
 
-    <!-- <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;"> -->
-    <!--     <div> -->
-    <!--         <span class="add-on"><strong>Filter:</strong>&nbsp;&nbsp;</span> -->
-    <!--         <input type="text" id="filter" class="span2" style="width: 85%;" /> -->
-    <!--     </div> -->
-    <!-- </div> -->
+    <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
+        <div>
+            <h4 style="float: left; line-height: 200%;">Regenerate configure files:&nbsp;&nbsp;</h4>
+            <div class="btn-group" style="width: auto; float: left;">
+                <button class="btn">Automatic</button>
+                <button class="btn active">Manual</button>
+            </div>
+        </div>
+    </div>
+    <div class="span8">
+        <div class="alert alert-info">
+            <strong>Notice:</strong> Just regenerate configure files, You need restart services to apply.
+        </div>
+    </div>
 
     <div id="options" class="span8">
         <table id="options-table" class="table table-bordered">

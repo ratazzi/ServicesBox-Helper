@@ -1,3 +1,7 @@
+.fixed-font {
+    font-family: Monaco, Monospace, "Courier New";
+}
+
 body {
     background-image: url("img/bg.png");
 }
@@ -12,7 +16,7 @@ div#sidebar, div#content {
 
 div#header {
     border-radius: 5px 5px 5px 5px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2)
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     min-height:40px;
     margin: 20px 0 0 0;
 }
@@ -97,11 +101,11 @@ div.event_ h4 {
     margin-bottom: 10px;
 }
 
-.fixed-font, code {
-    font-family: Monaco, Monospace, "Courier New";
+code {
+    .fixed-font;
 }
 
 div#options table td{
     font-size: 12px;
-    font-family: Monaco, Monospace; "Courier New";
+    .fixed-font;
 }
