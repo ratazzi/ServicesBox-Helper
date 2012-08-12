@@ -34,6 +34,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/websocket/.*', handler.ActivityHandler),
             (r'/api/service', handler.ServiceHandler),
+            (r'/options', handler.OptionsHandler),
             (r'/.*', handler.MainHandler),
         ]
         settings = dict(
@@ -53,9 +54,9 @@ if __name__ == '__main__':
 
     try:
         http_server = tornado.httpserver.HTTPServer(Application())
-        addr = options['--bind'] or ''
+        addr = options['--bind'] or '0.0.0.0'
         port = options['--port'] and int(options['--port']) or 8000
-        logger.debug("listen on ('%s', %d)" % (addr, port))
+        logger.debug("(%d) starting up on http://%s:%d" % (os.getpid(), addr, port))
         http_server.listen(port, addr)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:

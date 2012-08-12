@@ -7,7 +7,8 @@ import traceback
 import tornado.web
 import tornado.websocket
 
-from module import service
+import storage
+from module import service, option
 from core import activity
 from core.greentornado import greenify
 from websocket import channel
@@ -34,6 +35,12 @@ class WebHandler(tornado.web.RequestHandler):
     @property
     def tpl(self):
         return self.application.jinja
+
+    def get_params(self):
+        items = dict()
+        for k in self.request.arguments.keys():
+            items[k] = self.get_argument(k)
+        return items
 
     def render(self, template, **kwargs):
         template = self.tpl.get_template(template)
@@ -74,6 +81,7 @@ class ActivityHandler(tornado.websocket.WebSocketHandler):
         channel.open_channel(self.channel_name, self)
 
     def on_message(self, message):
+        global channel
         logger.debug('websocket channel: %s got message' % self.channel_name)
         logger.debug(message)
         channel.handle_message(self.channel_name, message)
@@ -87,4 +95,25 @@ class ActivityHandler(tornado.websocket.WebSocketHandler):
 class MainHandler(WebHandler):
     def get(self):
         services = service.list_all()
-        self.render('index.html', services=services)
+        runnings = service.list_running_services()
+        self.render('index.html', services=services, runnings=runnings)
+
+class OptionsHandler(WebHandler):
+    def get(self):
+        with storage.get_session() as session:
+            options = session.query(option.Option).all()
+        self.render('options.html', options=options)
+
+    def post(self):
+        params = self.get_params()
+        try:
+            with storage.get_session() as session:
+                _option = session.query(option.Option).filter_by(id=params['id']).first()
+                _option.value = params['value']
+                session.add(_option)
+                session.commit()
+                self.write(params['value'])
+        except Exception, e:
+            logger.error(e)
+            logger.error(traceback.format_exc())
+            self.write(json.dumps({'status': 1, 'message': 'failed'}))

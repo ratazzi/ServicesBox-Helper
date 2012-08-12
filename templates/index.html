@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+
 {% block head %}
 <script type="text/javascript" src="{{ static_url('service.js') }}"></script>
 <script type="text/javascript" src="{{ static_url('tojson.js') }}"></script>
 {% endblock %}
+
 {% block content %}
 <div id="content" class="span9">
     <div class="span8">&nbsp;</div>
@@ -18,14 +20,14 @@
 
         {% for service in services %}
         <div id="{{ service.name }}" class="span9 event_">
-            <div class="span1"><i class="icon-play status" style="font-size: 48px;"></i></div>
+            <div class="span1"><i class="icon-{%if service.name in runnings %}play{% else %}stop{% endif %} status" style="font-size: 48px;"></i></div>
             <div class="span6">
                 <h4>{{ service.name }}</h4>
                 <p>{{ service.description }}</p>
                 <div>
                     <div class="btn-group" style="width: auto; float: left;">
-                        <button class="btn active start-service" name="{{ service.name }}">启动</button>
-                        <button class="btn stop-service" name="{{ service.name }}">停止</button>
+                        <button class="btn start-service{%if service.name in runnings %} active{% endif %}" name="{{ service.name }}">启动</button>
+                        <button class="btn stop-service{%if service.name not in runnings %} active{% endif %}" name="{{ service.name }}">停止</button>
                     </div>
                     <div>
                         <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>重启</button>

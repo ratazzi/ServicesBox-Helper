@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('options.css') }}" />
+<!-- <script type="text/javascript" src="{{ static_url('service.js') }}"></script> -->
+<!-- <script type="text/javascript" src="{{ static_url('tojson.js') }}"></script> -->
+<!-- <script type="text/javascript" src="{{ static_url('jquery.uitablefilter.js') }}"></script> -->
+<!-- <script type="text/javascript" src="{{ static_url('jquery.uitableedit.js') }}"></script> -->
+<script type="text/javascript" src="{{ static_url('DataTables/jquery.DataTables.min.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('DataTables/jquery.jeditable.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('DataTables/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('DataTables/jquery.validate.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('DataTables/jquery.DataTables.editable.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('options.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="content" class="span9">
+    <div class="span8">&nbsp;</div>
+
+    <!-- <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;"> -->
+    <!--     <div> -->
+    <!--         <span class="add-on"><strong>Filter:</strong>&nbsp;&nbsp;</span> -->
+    <!--         <input type="text" id="filter" class="span2" style="width: 85%;" /> -->
+    <!--     </div> -->
+    <!-- </div> -->
+
+    <div id="options" class="span8">
+        <table id="options-table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Addon</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for option in options %}
+                <tr id="{{ option.id }}">
+                    <td class="readonly">{{ option.id }} </td>
+                    <td class="addon-name readonly">{{ option.addon }}</td>
+                    <td class="option-name readonly">{{ option.name }}</td>
+                    <td class="option-value">{{ option.value }}</td>
+                    <td class="option-description readonly">{{ option.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

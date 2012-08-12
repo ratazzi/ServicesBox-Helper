@@ -100,3 +100,8 @@ div.event_ h4 {
 .fixed-font, code {
     font-family: Monaco, Monospace, "Courier New";
 }
+
+div#options table td{
+    font-size: 12px;
+    font-family: Monaco, Monospace; "Courier New";
+}

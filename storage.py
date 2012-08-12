@@ -6,12 +6,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import runtime.path
-from runtime import env
+# from runtime import env
 from module.base import Base
 
 _engine = None
 # db_uri = runtime.path.join(env.get('dir_data'), 'core.db')
-db_uri = runtime.path.join(os.path.dirname(__file__), 'core.db')
+db_uri = os.path.abspath(runtime.path.join(os.path.dirname(__file__), 'core.db'))
+print db_uri
 
 def get_engine():
     global _engine

@@ -12,7 +12,7 @@ from module import service
 from websocket.channel import broadcast
 
 class ServicesActivity(object):
-    interval = 2
+    interval = 0.5
     recv_queue = eventlet.queue.Queue()
     channel_name = None
     handler = None
@@ -54,6 +54,8 @@ class ServicesActivity(object):
                         pass
                     except psutil.error.NoSuchProcess:
                         pass
+                    except Exception, e:
+                        logger.error(e)
                 broadcast(self.channel_name, items)
             except Exception, e:
                 logger.error(e)
