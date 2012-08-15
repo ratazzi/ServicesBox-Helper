@@ -41,7 +41,7 @@ $(document).ready(function(){
             method = 'stop';
         } else if (text.match('start')) {
             console.log('start service ' + service_name);
-            method = 'restart';
+            method = 'start';
         }
 
         if (method && service_name) {
@@ -53,17 +53,24 @@ $(document).ready(function(){
         }
     });
 
-    var WebSocket = window.WebSocket || window.MozWebSocket;
+    function open_websocket(channel) {
+        var WebSocket = window.WebSocket || window.MozWebSocket;
 
-    if (WebSocket) {
-        try {
-            var socket = new WebSocket('ws://' + location.host + '/websocket/services_activity');
-        } catch(e) {
-            console.log('open websocket failed.');
+        var socket = new WebSocket('ws://' + location.host + channel);
+        console.log('open websocket channel ' + channel + ' done.');
+
+        function reconnect(channel) {
+            console.log('do reconnect.');
+            return open_websocket(channel);
         }
-    }
 
-    if (socket) {
+        socket.onclose = function(event) {
+            console.log('lost connection ' + channel);
+            self.setTimeout(function(){
+                reconnect(channel);
+            }, 1000);
+        }
+	
         socket.onmessage = function(event) {
             var data = $.parseJSON(event.data);
             // console.log(data);
@@ -84,23 +91,10 @@ $(document).ready(function(){
             });
         }
 
-        socket.onopen = function(event) {
-            console.log('websocket opened.');
-            socket.send($.toJSON({method: "start", name: "all"}));
-        }
-
-        socket.onclose = function(event) {
-            console.log('websocket closed. ');
-            if (!socket) {
-                self.setInterval(function(){
-                    try {
-                        console.log('reconnect ...');
-                        socket = new WebSocket('ws://' + location.host + '/websocket/services_activity');
-                    } catch (e) {
-                        console.log('reconnect failed.');
-                    }
-                }, 300);
-            }
-        }
+        // socket.onopen = function(event) {
+        //     console.log('websocket opened.');
+        //     socket.send($.toJSON({method: "start", name: "all"}));
+        // }
     }
+    open_websocket('/websocket/services_activity');
 });

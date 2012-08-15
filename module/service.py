@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 import traceback
 import json
 import psutil
+import eventlet
 from sqlalchemy import Column, Integer, Text
 from eventlet.green import os, subprocess
 
@@ -86,6 +87,7 @@ class Service(Base):
 
     def _restart(self):
         self._stop()
+        eventlet.sleep(3)
         self._start()
 
 def get(name):

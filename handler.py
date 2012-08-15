@@ -46,6 +46,7 @@ class WebHandler(tornado.web.RequestHandler):
         template = self.tpl.get_template(template)
         kwargs['handler'] = self
         kwargs['static_url'] = self.static_url
+        kwargs['_'] = self.application.locale.translate
         self.write(template.render(**kwargs))
 
 @greenify

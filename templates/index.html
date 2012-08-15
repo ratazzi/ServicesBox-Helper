@@ -12,9 +12,9 @@
 
         <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
             <div style="float: right;">
-                <button id="start-all-services" class="btn">启动所有服务</button>
-                <button id="stop-all-services" class="btn">停止所有服务</button>
-                <button id="restart-all-services" class="btn">重启所有服务</button>
+                <button id="start-all-services" class="btn">{{ _('Start all services') }}</button>
+                <button id="stop-all-services" class="btn">{{ _('Stop all services') }}</button>
+                <button id="restart-all-services" class="btn">{{ _('Restart all services') }}</button>
             </div>
         </div>
 
@@ -26,11 +26,11 @@
                 <p>{{ service.description }}</p>
                 <div>
                     <div class="btn-group" style="width: auto; float: left;">
-                        <button class="btn start-service{%if service.name in runnings %} active{% endif %}" name="{{ service.name }}">启动</button>
-                        <button class="btn stop-service{%if service.name not in runnings %} active{% endif %}" name="{{ service.name }}">停止</button>
+                        <button class="btn start-service{%if service.name in runnings %} active{% endif %}" name="{{ service.name }}">{{ _('Start') }}</button>
+                        <button class="btn stop-service{%if service.name not in runnings %} active{% endif %}" name="{{ service.name }}">{{ _('Stop') }}</button>
                     </div>
                     <div>
-                        <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>重启</button>
+                        <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>{{ _('Restart') }}</button>
                     </div>
                 </div>
             </div>

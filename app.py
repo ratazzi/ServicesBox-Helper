@@ -10,6 +10,7 @@ import logging
 import traceback
 import tornado.web
 import tornado.ioloop
+import tornado.locale
 import tornado.httpserver
 # import eventlet
 from eventlet.green import os
@@ -28,6 +29,7 @@ import handler
 import runtime.path
 
 runtime.path.bootstrap()
+tornado.locale.load_translations(runtime.path.resources_path('i18n', True))
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -48,6 +50,7 @@ class Application(tornado.web.Application):
 
         self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
         # self.jinja.filters['timeline'] = timeline
+        self.locale = tornado.locale.get('zh_CN')
 
 if __name__ == '__main__':
     options = docopt(__doc__, version='0.1.0')

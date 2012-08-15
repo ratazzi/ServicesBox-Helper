@@ -25,6 +25,7 @@ def bootstrap():
     env.add('dir_data', os.path.join(base_dir, 'var', 'lib'))
     env.add('dir_log', os.path.join(base_dir, 'var', 'log'))
     env.add('dir_run', os.path.join(base_dir, 'var', 'run'))
+    env.add('dir_resources', os.path.join(base_dir, 'resources'))
 
     for k, _dir in os.environ.items():
         if k.startswith('X_DIR_'):
@@ -48,3 +49,10 @@ def process_addon_dirs(addon):
             _dst = _dir.dir.format(**ENV_DICT)
         if not os.path.exists(_dst):
             os.makedirs(_dst)
+
+def resources_path(relative, is_dir=False):
+    _path = join(env.get('dir_resources'), relative)
+    if is_dir and os.path.exists(_path):
+        return _path
+    if not is_dir and os.path.isfile(_path):
+        return _path
