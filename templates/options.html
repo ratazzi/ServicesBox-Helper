@@ -17,9 +17,9 @@
     <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
         <div>
             <h4 style="float: left; line-height: 200%;">Regenerate configure files:&nbsp;&nbsp;</h4>
-            <div class="btn-group" style="width: auto; float: left;">
-                <button class="btn">Automatic</button>
-                <button class="btn active">Manual</button>
+            <div id="auto_regen" class="btn-group" style="width: auto; float: left;">
+                <button rel="automatic" class="btn{% if auto_regen %} active{% endif %}">Automatic</button>
+                <button rel="manual" class="btn{% if not auto_regen %} active{% endif %}">Manual</button>
             </div>
         </div>
     </div>

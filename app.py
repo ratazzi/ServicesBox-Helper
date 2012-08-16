@@ -27,6 +27,7 @@ logger.setLevel(logging.DEBUG)
 
 import handler
 import runtime.path
+from module.store import Store
 
 runtime.path.bootstrap()
 tornado.locale.load_translations(runtime.path.resources_path('i18n', True))
@@ -36,6 +37,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/websocket/.*', handler.ActivityHandler),
             (r'/api/service', handler.ServiceHandler),
+            (r'/api/store', handler.StoreHandler),
             (r'/options', handler.OptionsHandler),
             (r'/.*', handler.MainHandler),
         ]
@@ -51,6 +53,7 @@ class Application(tornado.web.Application):
         self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
         # self.jinja.filters['timeline'] = timeline
         self.locale = tornado.locale.get('zh_CN')
+        self.store = Store()
 
 if __name__ == '__main__':
     options = docopt(__doc__, version='0.1.0')

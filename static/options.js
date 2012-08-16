@@ -135,4 +135,21 @@ $(document).ready(function(){
         },
         // sSuccessResponse: "IGNORE"
     });
+
+    $("#auto_regen button:not(.active)").live('click', function(){
+        // toggle automatic or manual to regenerate configure files.
+        var value = 0;
+        var current = $(this);
+        if (current.attr('rel').match('automatic')) {
+            value = 1;
+        }
+
+        $.post('/api/store', {key: "auto_regen", value: value}, function(data){
+            console.log(data);
+            if (data.status == 0) {
+                current.toggleClass('active');
+                current.siblings().toggleClass('active');
+            }
+        }, 'json');
+    });
 });

@@ -26,7 +26,7 @@ from docopt import docopt
 import storage
 import runtime.path
 from runtime import env
-from module import addon, option, service, directory
+from module import addon, option, service, directory, store
 
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 
@@ -115,6 +115,7 @@ def gen_config():
                 with open(dst, 'w') as fp:
                     fp.write(content)
                     # print dst
+                    logger.info('genrate config file %s' % dst)
             # exit(0)
 
 def do_service(options):

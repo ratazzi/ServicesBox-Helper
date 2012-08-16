@@ -8,6 +8,7 @@ import tornado.web
 import tornado.websocket
 
 import storage
+from ctl import gen_config
 from module import service, option
 from core import activity
 from core.greentornado import greenify
@@ -99,11 +100,14 @@ class MainHandler(WebHandler):
         runnings = service.list_running_services()
         self.render('index.html', services=services, runnings=runnings)
 
+@greenify
 class OptionsHandler(WebHandler):
     def get(self):
         with storage.get_session() as session:
             options = session.query(option.Option).all()
-        self.render('options.html', options=options)
+        auto_regen = self.application.store['auto_regen']
+        auto_regen = auto_regen and bool(int(auto_regen.value)) or False
+        self.render('options.html', options=options, auto_regen=auto_regen)
 
     def post(self):
         params = self.get_params()
@@ -113,8 +117,23 @@ class OptionsHandler(WebHandler):
                 _option.value = params['value']
                 session.add(_option)
                 session.commit()
+                auto_regen = self.application.store['auto_regen']
+                auto_regen = auto_regen and bool(int(auto_regen.value)) or False
+                if auto_regen:
+                    gen_config()
                 self.write(params['value'])
         except Exception, e:
             logger.error(e)
             logger.error(traceback.format_exc())
             self.write(json.dumps({'status': 1, 'message': 'failed'}))
+
+@greenify
+class StoreHandler(APIHandler):
+    def post(self):
+        params = self.get_params()
+        if 'key' in params and 'value' in params:
+            self.application.store[params['key']] = params['value']
+            data = {'status': 0, 'message': 'ok'}
+        else:
+            data = {'status': 1, 'message': 'failed'}
+        self.to_json(data)
