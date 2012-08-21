@@ -3,6 +3,8 @@
 
 import sys
 import glob
+import biplist
+import plistlib
 from eventlet.green import os
 
 import env
@@ -13,7 +15,18 @@ def join(*args):
     return os.path.join(*args).replace(os.path.sep, '/')
 
 def bootstrap():
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    plist_path = os.path.expanduser('~/Library/Preferences/org.ratazzi.ServicesBox.plist')
+    if os.path.isfile(plist_path):
+        try:
+            defaults = biplist.readPlist(plist_path)
+        except (biplist.InvalidPlistException, biplist.NotBinaryPlistException):
+            defaults = plistlib.readPlist(plist_path)
+        except:
+            defaults = dict()
+    if 'dir_library' in defaults:
+        base_dir = defaults['dir_library']
+    else:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     # print base_dir
     if 'darwin' in sys.platform:
         addons = 'bundles'
@@ -28,9 +41,12 @@ def bootstrap():
     env.add('dir_resources', os.path.join(base_dir, 'resources'))
 
     for k, _dir in os.environ.items():
-        if k.startswith('X_DIR_'):
+        if k.startswith('%sDIR_' % env.PREFIX):
             if not os.path.exists(_dir):
                 os.makedirs(_dir)
+
+    # from pprint import pprint
+    # pprint(os.environ)
 
 def all_addons_desc():
     return glob.glob('%s/*/addon.yaml' % env.get('dir_addons'))

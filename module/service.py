@@ -15,6 +15,7 @@ import runtime
 import runtime.path
 from runtime import env
 from base import Base
+from directory import Directory
 
 class Service(Base):
     __tablename__ = 'services'
@@ -36,7 +37,21 @@ class Service(Base):
         ENV_DICT = env.all_dict()
         ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), self.name)
         ENV_DICT['DIR_ADDON_CONFIG'] = runtime.path.join(env.get('dir_config'), self.name)
-        ENV_DICT['DIR_ADDON_DATA'] = runtime.path.join(env.get('dir_data'), self.name)
+        with storage.get_session() as session:
+            items = session.query(Directory).filter_by(addon=self.addon).all()
+            for _dir in items:
+                if _dir.dir is None and _dir.name not in runtime.path.DEFAULT_DIRS.keys():
+                    raise Exception("Invalid default dir: `%s'" % _dir.name)
+
+                if _dir.dir is None:
+                    _dir_name = 'dir_%s' % _dir.name
+                    _dst = runtime.path.join(env.get(_dir_name), _dir.addon)
+                else:
+                    _dst = _dir.dir.format(**ENV_DICT)
+                _dir_name = 'DIR_ADDON_%s' % _dir.name.upper()
+                ENV_DICT[_dir_name] = _dst
+                if not os.path.exists(_dst):
+                    os.makedirs(_dst)
         for name, _dir in ENV_DICT.items():
             if name.startswith('DIR_ADDON') and not os.path.exists(_dir):
                 os.makedirs(_dir)
@@ -47,7 +62,11 @@ class Service(Base):
         runtime.einfo(cmd)
         logger.debug(cmd)
         runtime.einfo("start service `%s'." % self.name)
-        p = subprocess.Popen(cmd.split(), env=self.env)
+        kwargs = {
+            'env': self.env,
+        }
+        logger.debug(kwargs)
+        p = subprocess.Popen(cmd.split(), **kwargs)
         runtime.einfo(p.pid)
 
     def _stop(self):
@@ -128,6 +147,8 @@ def list_running_services():
                     continue
                 rs.append(name)
         except psutil.AccessDenied:
+            pass
+        except SystemError:
             pass
         except IndexError:
             pass

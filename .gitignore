@@ -3,7 +3,7 @@
 *.log
 *.bak
 *.db
-app
-warnapp.txt
+dashboard
+warn*.txt
 build
 dist

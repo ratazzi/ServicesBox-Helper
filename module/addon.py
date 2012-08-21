@@ -53,7 +53,7 @@ class Addon(Base):
     def env(self):
         _env = {
             'DIR_ADDON': runtime.path.join(env.get('dir_addons'), self.name),
-            }
+        }
         for _dir in _env.values():
             if not os.path.exists(_dir):
                 os.makedirs(_dir)

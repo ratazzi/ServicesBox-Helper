@@ -13,6 +13,7 @@
 """
 
 import os
+import shutil
 import yaml
 import logging
 import logging.handlers
@@ -93,13 +94,19 @@ def load_addons():
             _load_addon(_addon_desc)
 
 def gen_config():
+    for item in os.listdir(env.get('dir_config')):
+        _path = runtime.path.join(env.get('dir_config'), item)
+        if os.path.isfile(_path):
+            os.remove(_path)
+        else:
+            shutil.rmtree(_path)
     for addon_desc in runtime.path.all_addons_desc():
         ENV_DICT = env.all_dict()
         with open(addon_desc, 'r') as fp:
             _addon_desc = yaml.load(fp.read())
             _addon = addon.get(_addon_desc['name'])
             ENV_DICT.update(_addon.env())
-            for _conf in _addon_desc['conf']:
+            for _conf in _addon_desc.get('conf', []):
                 src = _conf['src'].format(**ENV_DICT)
                 dst = _conf['dst'].format(**ENV_DICT)
                 dst_dir = os.path.dirname(dst)
