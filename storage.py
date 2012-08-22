@@ -2,47 +2,30 @@
 # coding=utf-8
 
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from storm.locals import create_database, Store
 
 import runtime.path
-# from runtime import env
+from runtime import env
 from module.base import Base
 
-_engine = None
-# db_uri = runtime.path.join(env.get('dir_data'), 'core.db')
+_database = None
+_store = None
+
 db_uri = os.path.abspath(runtime.path.join(os.path.dirname(__file__), 'core.db'))
 print db_uri
 
-def get_engine():
-    global _engine
-    if not _engine:
-        _engine = create_engine('sqlite:///%s' % db_uri, echo=False)
-    return _engine
+def get_store():
+    global _database, _store
+    if not _database:
+        _database = create_database('sqlite:///%s' % db_uri)
+    if not _store:
+        _store = Store(_database)
 
-Session = sessionmaker(bind=get_engine())
-
-class ContextSession(object):
-    _session = None
-
-    def __enter__(self):
-        if not self._session:
-            self._session = Session()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        if self._session:
-            self._session.close()
-
-    def __getattr__(self, name):
-        return getattr(self._session, name)
-
-def get_session(with_context=True):
-    if with_context:
-        _session = ContextSession()
-    else:
-        _session = Session()
-    return _session
+    return _store
 
 def init():
-    Base.metadata.create_all(get_engine())
+    import sqlite3
+    print 'create tables.'
+    with open(os.path.join(os.path.dirname(__file__), 'schema.sql')) as fp:
+        conn = sqlite3.connect(db_uri)
+        conn.executescript(fp.read())

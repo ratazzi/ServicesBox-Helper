@@ -32,6 +32,7 @@ def bootstrap():
         addons = 'bundles'
     else:
         addons = 'addons'
+    env.add('dir_library', base_dir)
     env.add('dir_addons', os.path.join(base_dir, addons))
     env.add('dir_config', os.path.join(base_dir, 'etc'))
     env.add('dir_tmp', os.path.join(base_dir, 'tmp'))
@@ -53,7 +54,7 @@ def all_addons_desc():
 
 def process_addon_dirs(addon):
     ENV_DICT = env.all_dict()
-    for _dir in addon._directories():
+    for _dir in addon.directories:
         if _dir.dir is None and _dir.name not in DEFAULT_DIRS.keys():
             raise Exception("Invalid default dir: `%s'" % _dir.name)
 

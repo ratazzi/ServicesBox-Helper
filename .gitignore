@@ -3,6 +3,7 @@
 *.log
 *.bak
 *.db
+*.db-journal
 dashboard
 warn*.txt
 build

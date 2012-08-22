@@ -8,8 +8,12 @@ import eventlet
 
 logger = logging.getLogger(__name__)
 
+import storage
 from module import service
+from module.schema import Service, all_services_exe
 from websocket.channel import broadcast
+
+store = storage.get_store()
 
 class ServicesActivity(object):
     interval = 0.5
@@ -36,14 +40,14 @@ class ServicesActivity(object):
         while True:
             try:
                 items = dict()
-                for _service in service.list_all():
+                for _service in store.find(Service):
                     items[_service.name] = {
                         'name': _service.name,
                         'description': _service.description,
                         'running': False,
                     }
 
-                services2exe = service.all_services_exe()
+                services2exe = all_services_exe()
                 exe2services = dict([(v, k) for k, v in services2exe.items()])
                 for p in psutil.process_iter():
                     try:
