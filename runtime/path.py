@@ -35,6 +35,7 @@ def bootstrap():
     env.add('dir_library', base_dir)
     env.add('dir_addons', os.path.join(base_dir, addons))
     env.add('dir_config', os.path.join(base_dir, 'etc'))
+    env.add('dir_bin', os.path.join(base_dir, 'bin'))
     env.add('dir_tmp', os.path.join(base_dir, 'tmp'))
     env.add('dir_data', os.path.join(base_dir, 'var', 'lib'))
     env.add('dir_log', os.path.join(base_dir, 'var', 'log'))
@@ -50,7 +51,7 @@ def bootstrap():
     # pprint(os.environ)
 
 def all_addons_desc():
-    return glob.glob('%s/*/addon.yaml' % env.get('dir_addons'))
+    return glob.glob('%s/*/addon.y*ml' % env.get('dir_addons'))
 
 def process_addon_dirs(addon):
     ENV_DICT = env.all_dict()

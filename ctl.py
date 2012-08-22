@@ -98,6 +98,43 @@ def _load_addon(addon_desc):
             store.add(_dir)
     store.commit()
 
+    # copy data
+    if 'data' in addon_desc:
+        _env = _addon.env(True)
+        data = addon_desc['data']
+        src = data['src'].format(**_env)
+        dst = data['dst'].format(**_env)
+        if os.path.exists(dst) and len(os.listdir(dst)) == 0:
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
+
+    # # bin symlink
+    # addon_bin_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'bin')
+    # if not os.path.exists(env.get('dir_bin')):
+    #     os.makedirs(env.get('dir_bin'))
+    # if os.path.exists(addon_bin_dir):
+    #     for item in os.listdir(addon_bin_dir):
+    #         dst = runtime.path.join(env.get('dir_bin'), item)
+    #         if item in ('.DS_Store'):
+    #             continue
+    #         if os.path.islink(dst) or os.path.isfile(dst):
+    #             os.unlink(dst)
+    #         os.symlink(runtime.path.join(addon_bin_dir, item), dst)
+
+    # # lib symlink
+    # addon_lib_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'lib')
+    # lib_dir = runtime.path.join(env.get('dir_addons'), 'lib')
+    # if not os.path.exists(lib_dir):
+    #     os.makedirs(lib_dir)
+    # if os.path.exists(addon_lib_dir):
+    #     for item in os.listdir(addon_lib_dir):
+    #         dst = runtime.path.join(lib_dir, item)
+    #         if item in ('.DS_Store'):
+    #             continue
+    #         if os.path.islink(dst) or os.path.isfile(dst):
+    #             os.unlink(dst)
+    #         os.symlink(runtime.path.join(addon_lib_dir, item), dst)
+
 def load_addons():
     for addon_desc in runtime.path.all_addons_desc():
         print "processing `%s'" % addon_desc

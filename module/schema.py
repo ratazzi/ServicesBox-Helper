@@ -205,10 +205,14 @@ class Addon(object):
             _env[k.upper()] = _option.value
         return _env
 
-    def env(self):
+    def env(self, additional=False):
         _env = {
             'DIR_ADDON': runtime.path.join(env.get('dir_addons'), self.name),
         }
+        for k, v in os.environ.items():
+            if k.startswith(env.PREFIX):
+                k = k.replace(env.PREFIX, '')
+                _env[k] = v
         for _dir in _env.values():
             if not os.path.exists(_dir):
                 os.makedirs(_dir)

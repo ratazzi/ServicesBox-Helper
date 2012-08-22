@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# coding=utf-8
+
+"""
+ServicesBox Alfred extension command line tool
+"""
+
+import sys
+import requests
+import logging
+logging.basicConfig(filename='/Users/ratazzi/sboxctl.log', level=logging.DEBUG)
+
+try:
+    params = dict(zip(('method', 'name'), sys.argv[1].split(' ')))
+    #
+    # services
+    if params['method'] in ('start', 'stop', 'restart'):
+        r = requests.post('http://127.0.0.1:8000/api/service', params=params)
+        logging.info(r.text)
+    else:
+        # repair
+        pass
+except Exception, e:
+    logging.error(e)
