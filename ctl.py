@@ -34,9 +34,10 @@ import json
 from tornado import template
 from docopt import docopt
 
-import storage
 import runtime.path
 from runtime import env
+runtime.path.bootstrap()
+import storage
 from module import service
 from module.schema import Addon, Option, Service, Directory
 
@@ -48,7 +49,6 @@ console.setLevel(logging.WARNING)
 logger.addHandler(console)
 logger.setLevel(logging.DEBUG)
 
-runtime.path.bootstrap()
 handler = logging.handlers.TimedRotatingFileHandler(
     filename=runtime.path.join(env.get('dir_log'), 'ctl.log'),
     when='midnight', backupCount=7)

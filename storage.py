@@ -11,7 +11,7 @@ from module.base import Base
 _database = None
 _store = None
 
-db_uri = os.path.abspath(runtime.path.join(os.path.dirname(__file__), 'core.db'))
+db_uri = os.path.abspath(runtime.path.join(env.get('dir_data'), 'core.db'))
 print db_uri
 
 def get_store():
@@ -26,6 +26,6 @@ def get_store():
 def init():
     import sqlite3
     print 'create tables.'
-    with open(os.path.join(os.path.dirname(__file__), 'schema.sql')) as fp:
+    with open(runtime.path.resources_path('schema.sql')) as fp:
         conn = sqlite3.connect(db_uri)
         conn.executescript(fp.read())

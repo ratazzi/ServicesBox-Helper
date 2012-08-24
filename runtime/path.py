@@ -40,7 +40,6 @@ def bootstrap():
     env.add('dir_data', os.path.join(base_dir, 'var', 'lib'))
     env.add('dir_log', os.path.join(base_dir, 'var', 'log'))
     env.add('dir_run', os.path.join(base_dir, 'var', 'run'))
-    env.add('dir_resources', os.path.join(base_dir, 'resources'))
 
     for k, _dir in os.environ.items():
         if k.startswith('%sDIR_' % env.PREFIX):
@@ -69,8 +68,8 @@ def process_addon_dirs(addon):
             os.makedirs(_dst)
 
 def resources_path(relative, is_dir=False):
-    _path = join(env.get('dir_resources'), relative)
-    if is_dir and os.path.exists(_path):
-        return _path
-    if not is_dir and os.path.isfile(_path):
-        return _path
+    if getattr(sys, 'frozen', None):
+        base_dir = sys._MEIPASS
+    else:
+        base_dir = os.path.join(os.path.dirname(__file__), '..')
+    return join(base_dir, 'resources', relative)

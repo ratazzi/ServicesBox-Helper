@@ -25,11 +25,14 @@ console.setLevel(logging.DEBUG)
 logger.addHandler(console)
 logger.setLevel(logging.DEBUG)
 
-import handler
 import runtime.path
+runtime.path.bootstrap()
+import storage
+storage.init()
+import handler
+from runtime import env
 from module.store import Store
 
-runtime.path.bootstrap()
 tornado.locale.load_translations(runtime.path.resources_path('i18n', True))
 
 class Application(tornado.web.Application):
@@ -42,8 +45,8 @@ class Application(tornado.web.Application):
             (r'/.*', handler.MainHandler),
         ]
         settings = dict(
-            template_path=os.path.join(os.path.dirname(__file__), 'templates'),
-            static_path=os.path.join(os.path.dirname(__file__), 'static'),
+            template_path=runtime.path.resources_path('templates'),
+            static_path=runtime.path.resources_path('static'),
             cookie_secret='11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=',
             login_url='/signin/',
             debug=True,
