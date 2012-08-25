@@ -7,7 +7,7 @@ import logging
 import traceback
 import json
 from storm.locals import Reference, ReferenceSet
-from storm.locals import Int, Unicode, JSON
+from storm.locals import Int, Unicode, JSON, Bool
 from eventlet.green import os, subprocess
 
 import storage
@@ -86,11 +86,17 @@ class Service(object):
     stop = Unicode()
     restart = Unicode()
     env = JSON()
+    enable = Bool()
+    autostart = Bool()
     directories = ReferenceSet(addon, Directory.addon)
 
     def _start(self):
         if self.name in list_running_services():
             runtime.eerror("service `%s' is already running." % self.name)
+            return
+
+        if not self.enable:
+            runtime.eerror("service `%s' is disabled." % self.name)
             return
 
         ENV_DICT = env.all_dict()

@@ -29,6 +29,7 @@ import runtime.path
 runtime.path.bootstrap()
 import storage
 storage.init()
+import ctl
 import handler
 from runtime import env
 from module.store import Store
@@ -62,6 +63,7 @@ if __name__ == '__main__':
     options = docopt(__doc__, version='0.1.0')
 
     try:
+        ctl.start_all_services(True)
         http_server = tornado.httpserver.HTTPServer(Application())
         addr = options['--bind'] or '0.0.0.0'
         port = options['--port'] and int(options['--port']) or 8000

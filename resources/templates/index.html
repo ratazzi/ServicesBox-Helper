@@ -29,8 +29,16 @@
                         <button class="btn start-service{%if service.name in runnings %} active{% endif %}" name="{{ service.name }}">{{ _('Start') }}</button>
                         <button class="btn stop-service{%if service.name not in runnings %} active{% endif %}" name="{{ service.name }}">{{ _('Stop') }}</button>
                     </div>
-                    <div>
+                    <div style="float: left;">
                         <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>{{ _('Restart') }}</button>
+                    </div>
+                    <div class="btn-group" style="width: auto; float: right;">
+                        <button data-toggle="dropdown" class="btn dropdown-toggle">{{ _('Other') }}<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="##" class="toggle-enable-service"><i class="icon-ok"></i>{{ _('Enable') }}</a></li>
+                            <li><a href="##" class="toggle-auto-start-service">{{ _('Auto start') }}</a></li>
+                            <!--<li class="divider"></li>-->
+                        </ul>
                     </div>
                 </div>
             </div>

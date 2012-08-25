@@ -61,7 +61,7 @@ store = storage.get_store()
 def _load_addon(addon_desc):
     # pprint(addon_desc)
     print "register addon `%s'" % addon_desc['name']
-    _addon = Addon()
+    _addon = store.find(Addon, Addon.name == addon_desc['name']) or Addon()
     _addon.name = addon_desc['name']
     _addon.description = addon_desc['description']
     store.add(_addon)
@@ -85,6 +85,8 @@ def _load_addon(addon_desc):
         _service.stop = _service_desc['stop']
         _service.restart = _service_desc['restart']
         _service.env = _service_desc.get('env', {})
+        _service.enable = _service_desc.get('enable', True)
+        _service.autostart = _service_desc.get('autostart', True)
         store.add(_service)
 
     if 'directories' in addon_desc:
@@ -109,31 +111,34 @@ def _load_addon(addon_desc):
         shutil.copytree(src, dst)
 
     # # bin symlink
-    # addon_bin_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'bin')
-    # if not os.path.exists(env.get('dir_bin')):
-    #     os.makedirs(env.get('dir_bin'))
-    # if os.path.exists(addon_bin_dir):
-    #     for item in os.listdir(addon_bin_dir):
-    #         dst = runtime.path.join(env.get('dir_bin'), item)
-    #         if item in ('.DS_Store'):
-    #             continue
-    #         if os.path.islink(dst) or os.path.isfile(dst):
-    #             os.unlink(dst)
-    #         os.symlink(runtime.path.join(addon_bin_dir, item), dst)
+    addon_bin_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'bin')
+    if not os.path.exists(env.get('dir_bin')):
+        os.makedirs(env.get('dir_bin'))
+    if os.path.exists(addon_bin_dir):
+        for item in os.listdir(addon_bin_dir):
+            dst = runtime.path.join(env.get('dir_bin'), item)
+            if item in ('.DS_Store'):
+                continue
+            if os.path.islink(dst) or os.path.isfile(dst):
+                os.unlink(dst)
+            os.symlink(runtime.path.join(addon_bin_dir, item), dst)
 
     # # lib symlink
-    # addon_lib_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'lib')
-    # lib_dir = runtime.path.join(env.get('dir_addons'), 'lib')
-    # if not os.path.exists(lib_dir):
-    #     os.makedirs(lib_dir)
-    # if os.path.exists(addon_lib_dir):
-    #     for item in os.listdir(addon_lib_dir):
-    #         dst = runtime.path.join(lib_dir, item)
-    #         if item in ('.DS_Store'):
-    #             continue
-    #         if os.path.islink(dst) or os.path.isfile(dst):
-    #             os.unlink(dst)
-    #         os.symlink(runtime.path.join(addon_lib_dir, item), dst)
+    addon_lib_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'lib')
+    lib_dir = runtime.path.join(env.get('dir_addons'), 'lib')
+    if not os.path.exists(lib_dir):
+        os.makedirs(lib_dir)
+    if os.path.exists(addon_lib_dir):
+        for item in os.listdir(addon_lib_dir):
+            src = runtime.path.join(addon_lib_dir, item)
+            dst = runtime.path.join(lib_dir, item)
+            if item in ('.DS_Store'):
+                continue
+            if os.path.islink(dst) or os.path.isfile(dst):
+                os.unlink(dst)
+            if os.path.isdir(src):
+                continue
+            os.symlink(src, dst)
 
 def load_addons():
     for addon_desc in runtime.path.all_addons_desc():
@@ -175,22 +180,33 @@ def gen_config():
                     logger.info('genrate config file %s' % dst)
             # exit(0)
 
+def start_all_services(only_autostart=False):
+    for _service in store.find(Service):
+        if not _service.autostart and only_autostart:
+            continue
+        _service._start()
+
+def stop_all_services():
+    for _service in service.store.find(Service):
+        _service._stop()
+
+def restart_all_services():
+    for _service in service.store.find(Service):
+        _service._restart()
+
 def do_service(options):
     if options['--start-all']:
-        for _service in store.find(Service):
-            _service._start()
+        start_all_services()
     elif options['--start']:
         _service = service.get(options['--start'])
         _service._start()
     elif options['--stop-all']:
-        for _service in service.store.find(Service):
-            _service._stop()
+        stop_all_services()
     elif options['--stop']:
         _service = service.get(options['--stop'])
         _service._stop()
     elif options['--restart-all']:
-        for _service in service.store.find(Service):
-            _service._restart()
+        restart_all_services()
     elif options['--restart']:
         _service = service.get(options['--restart'])
         _service._restart()
@@ -205,6 +221,8 @@ def do_service(options):
 
 def do_repair(options):
     load_addons()
+    # virtaul env
+    shutil.copy(runtime.path.resources_path('activate'), runtime.path.join(env.get('dir_bin'), 'activate'))
     for _addon in store.find(Addon):
         runtime.path.process_addon_dirs(_addon)
     gen_config()

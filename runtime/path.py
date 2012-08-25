@@ -12,7 +12,7 @@ import env
 DEFAULT_DIRS = {'config': '0755', 'tmp': '0777', 'data': '0755', 'log': '0755', 'run': '0755'}
 
 def join(*args):
-    return os.path.join(*args).replace(os.path.sep, '/')
+    return os.path.normpath(os.path.join(*args)).replace(os.path.sep, '/')
 
 def bootstrap():
     plist_path = os.path.expanduser('~/Library/Preferences/org.ratazzi.ServicesBox.plist')
@@ -71,5 +71,5 @@ def resources_path(relative, is_dir=False):
     if getattr(sys, 'frozen', None):
         base_dir = sys._MEIPASS
     else:
-        base_dir = os.path.join(os.path.dirname(__file__), '..')
+        base_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
     return join(base_dir, 'resources', relative)

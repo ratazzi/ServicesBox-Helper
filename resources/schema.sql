@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS `services` (
     "stop" TEXT,
     "restart" TEXT,
     "env" TEXT,
+    "enable" INTEGER DEFAULT 1,
+    "autostart" INTEGER DEFAULT 1,
     PRIMARY KEY ("id")
 );
 

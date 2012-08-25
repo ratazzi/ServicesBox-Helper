@@ -1,0 +1,11 @@
+ServicesBox_ENV=`cd "$(dirname "$0")"; pwd`
+
+OLD_PATH="$PATH"
+
+export PATH="$ServicesBox_ENV:$PATH"
+
+if [ -n "$BASH" -o -n "$ZSH_VERSION" ]; then
+    hash -r
+fi
+
+# vim: set ft=sh
