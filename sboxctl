@@ -6,9 +6,10 @@ ServicesBox Alfred extension command line tool
 """
 
 import sys
+import json
 import requests
 import logging
-logging.basicConfig(filename='/Users/ratazzi/sboxctl.log', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/sboxctl.log', level=logging.DEBUG)
 
 try:
     params = dict(zip(('method', 'name'), sys.argv[1].split(' ')))
@@ -16,7 +17,18 @@ try:
     # services
     if params['method'] in ('start', 'stop', 'restart'):
         r = requests.post('http://127.0.0.1:8000/api/service', params=params)
-        logging.info(r.text)
+        response = json.loads(r.text)
+        logging.info(response)
+        if response['status'] == 0:
+            if params['name'] == 'all':
+                print '%s all services successful.' % params['method']
+            else:
+                print '%s service %s successful.' % (params['method'], params['name'])
+        else:
+            if params['name'] == 'all':
+                print '%s all services failed.' % params['method']
+            else:
+                print '%s service %s failed.' % (params['method'], params['name'])
     else:
         # repair
         pass

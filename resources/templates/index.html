@@ -34,9 +34,9 @@
                     </div>
                     <div class="btn-group" style="width: auto; float: right;">
                         <button data-toggle="dropdown" class="btn dropdown-toggle">{{ _('Other') }}<span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a href="##" class="toggle-enable-service"><i class="icon-ok"></i>{{ _('Enable') }}</a></li>
-                            <li><a href="##" class="toggle-auto-start-service">{{ _('Auto start') }}</a></li>
+                        <ul class="dropdown-menu service-other-dropdown">
+                            <li><a href="javascript:void(0);" rel="{{ service.name }}" class="toggle-enable-service"><i class="icon-{% if service.enable %}ok{% else %}cancel{% endif %}"></i>{{ _('Enable') }}</a></li>
+                            <li><a href="javascript:void(0);" rel="{{ service.name }}" class="toggle-autostart-service"><i class="icon-{% if service.autostart %}ok{% else %}cancel{% endif %}"></i>{{ _('Auto start') }}</a></li>
                             <!--<li class="divider"></li>-->
                         </ul>
                     </div>

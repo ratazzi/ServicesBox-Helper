@@ -25,9 +25,12 @@ store = storage.get_store()
 
 class APIHandler(tornado.web.RequestHandler):
     def get_params(self):
-        items = dict()
-        for k in self.request.arguments.keys():
-            items[k] = self.get_argument(k)
+        if 'application/json' in self.request.headers.get('Content-Type', ''):
+            items = json.loads(self.request.body)
+        else:
+            items = dict()
+            for k in self.request.arguments.keys():
+                items[k] = self.get_argument(k)
         return items
 
     def to_json(self, data):
@@ -68,8 +71,7 @@ class ServiceHandler(APIHandler):
             for _service in services:
                 if hasattr(_service, '_%s' % method):
                     _exec = getattr(_service, '_%s' % method)
-                    _exec()
-                    data = {'status': 0, 'message': 'ok'}
+                    data = _exec(**params) or dict(status=0, message='ok')
         except Exception, e:
             logger.error(e)
             logger.error(traceback.format_exc())

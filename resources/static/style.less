@@ -2,6 +2,11 @@
     font-family: Monaco, Monospace, "Courier New";
 }
 
+.transparent{
+    -moz-opacity: 0.0001;
+    opacity: 0.0001;
+}
+
 body {
     background-image: url("img/bg.png");
 }
@@ -108,4 +113,8 @@ code {
 div#options table td{
     font-size: 12px;
     .fixed-font;
+}
+
+ul.service-other-dropdown i.icon-cancel {
+    .transparent;
 }

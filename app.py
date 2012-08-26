@@ -63,6 +63,7 @@ if __name__ == '__main__':
     options = docopt(__doc__, version='0.1.0')
 
     try:
+        # ctl.do_repair()
         ctl.start_all_services(True)
         http_server = tornado.httpserver.HTTPServer(Application())
         addr = options['--bind'] or '0.0.0.0'

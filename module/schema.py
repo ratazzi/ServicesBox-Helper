@@ -90,7 +90,7 @@ class Service(object):
     autostart = Bool()
     directories = ReferenceSet(addon, Directory.addon)
 
-    def _start(self):
+    def _start(self, **kwargs):
         if self.name in list_running_services():
             runtime.eerror("service `%s' is already running." % self.name)
             return
@@ -132,7 +132,7 @@ class Service(object):
         p = subprocess.Popen(cmd.split(), **kwargs)
         runtime.einfo(p.pid)
 
-    def _stop(self):
+    def _stop(self, **kwargs):
         if self.name not in list_running_services():
             runtime.eerror("service `%s' is not running." % self.name)
             return
@@ -167,11 +167,22 @@ class Service(object):
         #         _child.terminate()
         # _process.terminate()
 
-    def _restart(self):
+    def _restart(self, **kwargs):
         self._stop()
         eventlet.sleep(3)
         self._start()
 
+    def _toggle_enable(self, **kwargs):
+        self.enable = kwargs['enable']
+        store.add(self)
+        store.commit()
+        logger.debug('after toggle enable: %s' % str(self.enable))
+
+    def _toggle_autostart(self, **kwargs):
+        self.autostart = kwargs['autostart']
+        store.add(self)
+        store.commit()
+        logger.debug('after toggle autostart: %s' % str(self.autostart))
 
 class Settings(object):
     __storm_table__ = 'settings'

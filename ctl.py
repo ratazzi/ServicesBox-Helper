@@ -33,6 +33,7 @@ import traceback
 import json
 from tornado import template
 from docopt import docopt
+from pprint import pformat
 
 import runtime.path
 from runtime import env
@@ -45,7 +46,7 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 
 console = logging.StreamHandler()
 console.setFormatter(formatter)
-console.setLevel(logging.WARNING)
+console.setLevel(logging.DEBUG)
 logger.addHandler(console)
 logger.setLevel(logging.DEBUG)
 
@@ -56,19 +57,21 @@ handler.setFormatter(formatter)
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
+logger.debug(pformat(env.all_dict()))
+
 store = storage.get_store()
 
 def _load_addon(addon_desc):
     # pprint(addon_desc)
     print "register addon `%s'" % addon_desc['name']
-    _addon = store.find(Addon, Addon.name == addon_desc['name']) or Addon()
+    _addon = store.find(Addon, Addon.name == addon_desc['name']).one() or Addon()
     _addon.name = addon_desc['name']
     _addon.description = addon_desc['description']
     store.add(_addon)
 
     if 'options' in addon_desc:
         for _option_desc in addon_desc['options']:
-            _option = Option()
+            _option = store.find(Option, Option.name == _option_desc['name'], Option.addon == addon_desc['name']).one() or Option()
             _option.name = _option_desc['name']
             _option.addon = addon_desc['name']
             _option.description = _option_desc.get('description', _option_desc['name'])
@@ -77,7 +80,7 @@ def _load_addon(addon_desc):
 
     if 'service' in addon_desc:
         _service_desc = addon_desc['service']
-        _service = Service()
+        _service = store.find(Service, Service.name == addon_desc['name']).one() or Service()
         _service.name = addon_desc['name']
         _service.addon = addon_desc['name']
         _service.description = _service_desc['description']
@@ -91,7 +94,7 @@ def _load_addon(addon_desc):
 
     if 'directories' in addon_desc:
         for _dir_desc in addon_desc['directories']:
-            _dir = Directory()
+            _dir = store.find(Directory, Directory.name == _dir_desc['name'], Directory.addon == addon_desc['name']).one() or Directory()
             _dir.name = _dir_desc['name']
             _dir.addon = addon_desc['name']
             _dir.dir = _dir_desc.get('dir', None)
@@ -107,8 +110,10 @@ def _load_addon(addon_desc):
         src = data['src'].format(**_env)
         dst = data['dst'].format(**_env)
         if os.path.exists(dst) and len(os.listdir(dst)) == 0:
+            logger.info('remove empty directory %s' % dst)
             shutil.rmtree(dst)
-        shutil.copytree(src, dst)
+        if not os.path.exists(dst):
+            shutil.copytree(src, dst)
 
     # # bin symlink
     addon_bin_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'bin')
@@ -219,7 +224,7 @@ def do_service(options):
     else:
         print 'do nothing.'
 
-def do_repair(options):
+def do_repair(options=dict()):
     load_addons()
     # virtaul env
     shutil.copy(runtime.path.resources_path('activate'), runtime.path.join(env.get('dir_bin'), 'activate'))

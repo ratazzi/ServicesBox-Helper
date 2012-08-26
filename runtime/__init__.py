@@ -10,3 +10,11 @@ def einfo(output, newline=True):
 def eerror(output, newline=True):
     sys.stderr.write('%s%s' % (output, newline and '\n' or ''))
     sys.stderr.flush()
+
+class SBoxException(Exception):
+    def __init__(self, code=1001, message=''):
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return str(self.message)

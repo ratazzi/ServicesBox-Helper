@@ -53,6 +53,58 @@ $(document).ready(function(){
         }
     });
 
+    $('a.toggle-enable-service').click(function(){
+        var service_name = $(this).attr('rel');
+        var enable = !Boolean($(this).children('i.icon-ok').length);
+        var target = $(this);
+        if (service_name) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/service', 
+                data: $.toJSON({method: 'toggle_enable', name: service_name, enable: enable}),
+                contentType: 'application/json; charset=UTF-8',
+                dataType: 'json'
+            }).done(function(data){
+                console.log(data.message);
+                if (data.status == 0) {
+                    if (enable) {
+                        target.children('i').removeClass('icon-cancel').addClass('icon-ok');
+                    } else {
+                        target.children('i').removeClass('icon-ok').addClass('icon-cancel');
+                    }
+                }
+            });
+        } else {
+            console.log('shit');
+        }
+    });
+
+    $('a.toggle-autostart-service').click(function(){
+        var service_name = $(this).attr('rel');
+        var enable = !Boolean($(this).children('i').length);
+        var target = $(this);
+        if (service_name) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/service', 
+                data: $.toJSON({method: 'toggle_autostart', name: service_name, autostart: enable}),
+                contentType: 'application/json; charset=UTF-8',
+                dataType: 'json'
+            }).done(function(data){
+                console.log(data.message);
+                if (data.status == 0) {
+                    if (enable) {
+                        target.children('i').removeClass('icon-cancel').addClass('icon-ok');
+                    } else {
+                        target.children('i').removeClass('icon-ok').addClass('icon-cancel');
+                    }
+                }
+            });
+        } else {
+            console.log('shit');
+        }
+    });
+
     function open_websocket(channel) {
         var WebSocket = window.WebSocket || window.MozWebSocket;
 
