@@ -17,13 +17,12 @@ def join(*args):
 
 def bootstrap():
     defaults_path = os.path.expanduser('~/Library/Preferences/org.ratazzi.ServicesBox.plist')
+    defaults = dict()
     if os.path.isfile(defaults_path):
         try:
             defaults = biplist.readPlist(defaults_path)
         except (biplist.InvalidPlistException, biplist.NotBinaryPlistException):
             defaults = plistlib.readPlist(defaults_path)
-        except:
-            defaults = dict()
 
     if 'dir_library' in defaults:
         env.add('dir_library', defaults['dir_library'])
