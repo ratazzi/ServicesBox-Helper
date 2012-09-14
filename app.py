@@ -6,16 +6,15 @@
 
 """
 
+from eventlet.green import os
 import logging
 import traceback
 import tornado.web
-import tornado.ioloop
+import tornado.wsgi
 import tornado.locale
-import tornado.httpserver
-# import eventlet
-from eventlet.green import os
 from jinja2 import Environment, FileSystemLoader
 from docopt import docopt
+from tornadio2 import TornadioRouter, SocketServer
 
 logger = logging.getLogger()
 console = logging.StreamHandler()
@@ -36,10 +35,10 @@ from module.store import Store
 
 tornado.locale.load_translations(runtime.path.resources_path('i18n', True))
 
-class Application(tornado.web.Application):
+class Application(tornado.wsgi.WSGIApplication):
     def __init__(self):
         handlers = [
-            (r'/websocket/.*', handler.ActivityHandler),
+            # (r'/websocket/.*', handler.ActivityHandler),
             (r'/api/service', handler.ServiceHandler),
             (r'/api/store', handler.StoreHandler),
             (r'/options', handler.OptionsHandler),
@@ -52,6 +51,25 @@ class Application(tornado.web.Application):
             login_url='/signin/',
             debug=True,
         )
+        tornado.wsgi.WSGIApplication.__init__(self, handlers, **settings)
+
+        self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
+        # self.jinja.filters['timeline'] = timeline
+        self.locale = tornado.locale.get('zh_CN')
+        self.store = Store()
+
+class SocketIOApplication(tornado.web.Application):
+    def __init__(self, **settings):
+        params = dict(
+            enabled_protocols=['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
+        )
+        router = TornadioRouter(handler.SocketIOHandler, params)
+        handlers = router.apply_routes([
+            (r'/api/service', handler.ServiceHandler),
+            (r'/api/store', handler.StoreHandler),
+            (r'/options', handler.OptionsHandler),
+            (r'/', handler.MainHandler),
+        ])
         tornado.web.Application.__init__(self, handlers, **settings)
 
         self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
@@ -65,14 +83,22 @@ if __name__ == '__main__':
     try:
         # ctl.do_repair()
         ctl.start_all_services(True)
-        http_server = tornado.httpserver.HTTPServer(Application())
         addr = options['--bind'] or '0.0.0.0'
         port = options['--port'] and int(options['--port']) or 8000
-        logger.debug("(%d) starting up on http://%s:%d" % (os.getpid(), addr, port))
-        http_server.listen(port, addr)
-        tornado.ioloop.IOLoop.instance().start()
+
+        settings = dict(
+            template_path=runtime.path.resources_path('templates'),
+            static_path=runtime.path.resources_path('static'),
+            cookie_secret='11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=',
+            login_url='/signin/',
+            flash_policy_port=1843,
+            # flash_policy_file=,
+            socket_io_port=port,
+            debug=True,
+        )
+        app = SocketIOApplication(**settings)
+        SocketServer(app)
     except KeyboardInterrupt:
-        tornado.ioloop.IOLoop.instance().stop()
         print 'exited.'
     except Exception, e:
         logger.error(e)

@@ -12,12 +12,12 @@
 
 """
 
-import os
 import shutil
 import yaml
 import logging
 import logging.handlers
 logger = logging.getLogger()
+from eventlet.green import os
 from yaml import Loader, SafeLoader
 
 # force PyYAML to load strings as unicode objects

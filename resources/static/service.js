@@ -81,7 +81,7 @@ $(document).ready(function(){
 
     $('a.toggle-autostart-service').click(function(){
         var service_name = $(this).attr('rel');
-        var enable = !Boolean($(this).children('i').length);
+        var enable = !Boolean($(this).children('i.icon-ok').length);
         var target = $(this);
         if (service_name) {
             $.ajax({
@@ -116,16 +116,16 @@ $(document).ready(function(){
             return open_websocket(channel);
         }
 
-        socket.onclose = function(event) {
-            console.log('lost connection ' + channel);
-            self.setTimeout(function(){
-                reconnect(channel);
-            }, 1000);
-        }
+        // socket.onclose = function(event) {
+        //     console.log('lost connection ' + channel);
+        //     self.setTimeout(function(){
+        //         reconnect(channel);
+        //     }, 1000);
+        // }
 	
         socket.onmessage = function(event) {
             var data = $.parseJSON(event.data);
-            // console.log(data);
+            console.log(data);
             $.each(data, function(){
                 // console.log(this);
                 var service = $('#' + this.name);
@@ -148,5 +148,40 @@ $(document).ready(function(){
         //     socket.send($.toJSON({method: "start", name: "all"}));
         // }
     }
-    open_websocket('/websocket/services_activity');
+    // open_websocket('/websocket/services_activity');
+
+    WEB_SOCKET_SWF_LOCATION = "/static/WebSocketMain.swf";
+    WEB_SOCKET_DEBUG = true;
+
+    // Socket.io specific code
+    var activity = io.connect('htp://' + window.location.host);
+
+    activity.on('disconnect', function() {
+        activity.socket.reconnect();
+    });
+
+    function services_activity() {
+        activity.emit('services_activity', function(data) {
+            // console.log(data);
+            $.each(data, function(){
+                // console.log(this);
+                var service = $('#' + this.name);
+                // service.find('i.status').removeClass('');
+                // console.log(service.find('h4').text());
+                if (this.running) {
+                    service.find('i.icon-stop').removeClass('icon-stop').addClass('icon-play');
+                    service.find('button.start-service').addClass('active');
+                    service.find('button.stop-service').removeClass('active');
+                } else {
+                    service.find('button.start-service').removeClass('active');
+                    service.find('button.stop-service').addClass('active');
+                    service.find('i.icon-play').removeClass('icon-play').addClass('icon-stop');
+                }
+            });
+        });
+
+        setTimeout(services_activity, 1000);
+    }
+
+    services_activity();
 });

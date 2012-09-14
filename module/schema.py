@@ -6,9 +6,11 @@ import eventlet
 import logging
 import traceback
 import json
+from eventlet.green import os
+from eventlet.green import subprocess
 from storm.locals import Reference, ReferenceSet
 from storm.locals import Int, Unicode, JSON, Bool
-from eventlet.green import os, subprocess
+# from eventlet.green import os, subprocess
 
 import storage
 import runtime
@@ -145,9 +147,9 @@ class Service(object):
                 if _p.exe == _real_exe:
                     runtime.einfo(_p.pid)
                     _p.terminate()
-            except psutil.AccessDenied:
-                pass
-            except IndexError:
+                    _p.wait()
+                    logger.info(_p.status)
+            except (psutil.error.NoSuchProcess, psutil.AccessDenied, IndexError):
                 pass
             except Exception, e:
                 runtime.eerror(e)

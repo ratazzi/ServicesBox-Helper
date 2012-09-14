@@ -1,0 +1,8 @@
+pyyaml
+eventlet
+tornado
+jinja2
+docopt
+biplist
+storim
+psutil

@@ -5,6 +5,7 @@ import psutil
 import logging
 import traceback
 import eventlet
+import eventlet.queue
 
 logger = logging.getLogger(__name__)
 

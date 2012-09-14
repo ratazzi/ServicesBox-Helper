@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import os
+from eventlet.green import os
 from storm.locals import create_database, Store
 
 import runtime.path
 from runtime import env
-from module.base import Base
 
 _database = None
 _store = None

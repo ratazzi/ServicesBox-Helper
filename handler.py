@@ -4,16 +4,17 @@
 import json
 import logging
 import traceback
+import psutil
 import tornado.web
-import tornado.websocket
 
 import storage
 from ctl import gen_config
-from module import service, option
-from module.schema import Service, Option
+from module import service
+from module.schema import Service, Option, all_services_exe
 from core import activity
-from core.greentornado import greenify
 from websocket import channel
+from core.greentornado import greenify
+from tornadio2 import SocketConnection, TornadioRouter, SocketServer, event
 
 handlers = {
     'services_activity': activity.ServicesActivity,
@@ -79,24 +80,36 @@ class ServiceHandler(APIHandler):
             logger.debug(data)
             self.to_json(data)
 
-@greenify
-class ActivityHandler(tornado.websocket.WebSocketHandler):
-    def open(self):
-        global channel
-        self.channel_name = self.request.path.split('/')[-1]
-        logger.debug('open websocket channel: %s' % self.channel_name)
-        channel.open_channel(self.channel_name, self)
+# @greenify
+class SocketIOHandler(SocketConnection):
+    @event
+    def services_activity(self):
+        try:
+            items = dict()
+            for _service in store.find(Service):
+                items[_service.name] = {
+                    'name': _service.name,
+                    'description': _service.description,
+                    'running': False,
+                }
 
-    def on_message(self, message):
-        global channel
-        logger.debug('websocket channel: %s got message' % self.channel_name)
-        logger.debug(message)
-        channel.handle_message(self.channel_name, message)
-
-    def on_close(self):
-        global channel
-        logger.debug('close websocket channel: %s' % self.channel_name)
-        channel.close_channel(self.channel_name, self)
+            services2exe = all_services_exe()
+            exe2services = dict([(v, k) for k, v in services2exe.items()])
+            for p in psutil.process_iter():
+                try:
+                    _exe = p.exe
+                    if _exe in exe2services:
+                        items[exe2services.get(_exe)]['running'] = True
+                except psutil.error.AccessDenied:
+                    pass
+                except psutil.error.NoSuchProcess:
+                    pass
+                except Exception, e:
+                    logger.error(e)
+            return items
+        except Exception, e:
+            logger.error(e)
+            logger.error(traceback.format_exc())
 
 @greenify
 class MainHandler(WebHandler):

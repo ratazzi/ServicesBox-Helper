@@ -17,7 +17,7 @@ def collect_resources():
     return items
 
 a.datas = collect_resources()
-pprint(a.datas)
+# pprint(a.datas)
 
 exe = EXE( pyz,
           a.scripts,
