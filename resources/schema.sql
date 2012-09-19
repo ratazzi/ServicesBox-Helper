@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `addons` (
+CREATE TABLE IF NOT EXISTS `bundles` (
     "name" TEXT NOT NULL,
     "description" TEXT,
     PRIMARY KEY ("name")
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `addons` (
 CREATE TABLE IF NOT EXISTS `directories` (
     "id" INTEGER NOT NULL,
     "name" TEXT,
-    "addon" TEXT,
+    "bundle" TEXT,
     "dir" TEXT,
     "permission" VARCHAR,
     "description" TEXT,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `directories` (
 CREATE TABLE IF NOT EXISTS `options` (
     "id" INTEGER NOT NULL,
     "name" TEXT,
-    "addon" TEXT,
+    "bundle" TEXT,
     "value" TEXT,
     "description" TEXT,
     PRIMARY KEY ("id")
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `options` (
 CREATE TABLE IF NOT EXISTS `services` (
     "id" INTEGER NOT NULL,
     "name" TEXT,
-    "addon" TEXT,
+    "bundle" TEXT,
     "description" TEXT,
     "start" TEXT,
     "stop" TEXT,

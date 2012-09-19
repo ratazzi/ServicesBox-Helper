@@ -9,7 +9,7 @@ from eventlet.green import os
 
 import env
 
-DEFAULT_DIRS = {'addons': '0755', 'config': '0755', 'bin': '0755', 'tmp': '0777',
+DEFAULT_DIRS = {'bundles': '0755', 'config': '0755', 'bin': '0755', 'tmp': '0777',
                 'data': '0755', 'log': '0755', 'run': '0755'}
 
 def join(*args):
@@ -30,9 +30,9 @@ def bootstrap():
         # development environment
         env.add('dir_library', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-    addons = 'darwin' in sys.platform and 'bundles' or 'addon'
+    bundles = 'darwin' in sys.platform and 'bundles' or 'bundle'
 
-    env.add('dir_addons', os.path.join(env.get('dir_library'), addons))
+    env.add('dir_bundles', os.path.join(env.get('dir_library'), bundles))
     env.add('dir_config', os.path.join(env.get('dir_library'), 'etc'))
     env.add('dir_bin', os.path.join(env.get('dir_library'), 'bin'))
     env.add('dir_tmp', os.path.join(env.get('dir_library'), 'tmp'))
@@ -51,18 +51,18 @@ def bootstrap():
             if not os.path.exists(_dir):
                 os.makedirs(_dir)
 
-def all_addons_desc():
-    return glob.glob('%s/*/addon.y*ml' % env.get('dir_addons'))
+def all_bundles_desc():
+    return glob.glob('%s/*/bundle.y*ml' % env.get('dir_bundles'))
 
-def process_addon_dirs(addon):
+def process_bundle_dirs(bundle):
     ENV_DICT = env.all_dict()
-    for _dir in addon.directories:
+    for _dir in bundle.directories:
         if _dir.dir is None and _dir.name not in DEFAULT_DIRS.keys():
             raise Exception("Invalid default dir: `%s'" % _dir.name)
 
         if _dir.dir is None:
             _dir_name = 'dir_%s' % _dir.name
-            _dst = join(env.get(_dir_name), _dir.addon)
+            _dst = join(env.get(_dir_name), _dir.bundle)
         else:
 
             _dst = _dir.dir.format(**ENV_DICT)

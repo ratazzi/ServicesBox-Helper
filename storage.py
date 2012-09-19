@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import logging
 from eventlet.green import os
 from storm.locals import create_database, Store
 
@@ -9,9 +10,10 @@ from runtime import env
 
 _database = None
 _store = None
+logger = logging.getLogger(__name__)
 
 db_uri = os.path.abspath(runtime.path.join(env.get('dir_data'), 'core.db'))
-print db_uri
+logger.debug("database path: `%s'" % db_uri)
 
 def get_store():
     global _database, _store
@@ -24,7 +26,7 @@ def get_store():
 
 def init():
     import sqlite3
-    print 'create tables.'
+    logger.debug('create tables.')
     with open(runtime.path.resources_path('schema.sql')) as fp:
         conn = sqlite3.connect(db_uri)
         conn.executescript(fp.read())

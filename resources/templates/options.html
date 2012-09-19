@@ -34,7 +34,7 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Addon</th>
+                    <th>Bundle</th>
                     <th>Name</th>
                     <th>Value</th>
                     <th>Description</th>
@@ -44,7 +44,7 @@
                 {% for option in options %}
                 <tr id="{{ option.id }}">
                     <td class="readonly">{{ option.id }} </td>
-                    <td class="addon-name readonly">{{ option.addon }}</td>
+                    <td class="bundle-name readonly">{{ option.bundle }}</td>
                     <td class="option-name readonly">{{ option.name }}</td>
                     <td class="option-value">{{ option.value }}</td>
                     <td class="option-description readonly">{{ option.description }}</td>

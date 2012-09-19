@@ -55,9 +55,7 @@ class ServicesActivity(object):
                         _exe = p.exe
                         if _exe in exe2services:
                             items[exe2services.get(_exe)]['running'] = True
-                    except psutil.error.AccessDenied:
-                        pass
-                    except psutil.error.NoSuchProcess:
+                    except (psutil.error.AccessDenied, psutil.error.NoSuchProcess):
                         pass
                     except Exception, e:
                         logger.error(e)

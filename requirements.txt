@@ -4,5 +4,5 @@ tornado
 jinja2
 docopt
 biplist
-storim
+storm
 psutil

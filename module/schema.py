@@ -23,7 +23,7 @@ def all_services_exe():
     ENV_DICT = env.all_dict()
     items = {}
     for _service in store.find(Service):
-        ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), _service.name)
+        ENV_DICT['DIR_BUNDLE'] = runtime.path.join(env.get('dir_bundles'), _service.name)
         _exe = _service.start.split()[0]
         _exe = _exe.format(**ENV_DICT)
         items[_service.name] = _exe
@@ -35,7 +35,7 @@ def list_running_services():
     rs = []
     _services = []
     for _service in store.find(Service):
-        ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), _service.name)
+        ENV_DICT['DIR_BUNDLE'] = runtime.path.join(env.get('dir_bundles'), _service.name)
         _exe = _service.start.split()[0]
         _exe = _exe.format(**ENV_DICT)
         _services.append(_exe)
@@ -63,7 +63,7 @@ class Option(object):
 
     id = Int(primary=True)
     name = Unicode()
-    addon = Unicode()
+    bundle = Unicode()
     value = Unicode()
     description = Unicode()
 
@@ -72,7 +72,7 @@ class Directory(object):
 
     id = Int(primary=True)
     name = Unicode()
-    addon = Unicode()
+    bundle = Unicode()
     dir = Unicode()
     permission = Unicode()
     description = Unicode()
@@ -82,7 +82,7 @@ class Service(object):
 
     id = Int(primary=True)
     name = Unicode()
-    addon = Unicode()
+    bundle = Unicode()
     description = Unicode()
     start = Unicode()
     stop = Unicode()
@@ -90,7 +90,7 @@ class Service(object):
     env = JSON()
     enable = Bool()
     autostart = Bool()
-    directories = ReferenceSet(addon, Directory.addon)
+    directories = ReferenceSet(bundle, Directory.bundle)
 
     def _start(self, **kwargs):
         if self.name in list_running_services():
@@ -102,23 +102,23 @@ class Service(object):
             return
 
         ENV_DICT = env.all_dict()
-        ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), self.name)
-        ENV_DICT['DIR_ADDON_CONFIG'] = runtime.path.join(env.get('dir_config'), self.name)
+        ENV_DICT['DIR_BUNDLE'] = runtime.path.join(env.get('dir_bundles'), self.name)
+        ENV_DICT['DIR_BUNDLE_CONFIG'] = runtime.path.join(env.get('dir_config'), self.name)
         for _dir in self.directories:
             if _dir.dir is None and _dir.name not in runtime.path.DEFAULT_DIRS.keys():
                 raise Exception("Invalid default dir: `%s'" % _dir.name)
 
             if _dir.dir is None:
                 _dir_name = 'dir_%s' % _dir.name
-                _dst = runtime.path.join(env.get(_dir_name), _dir.addon)
+                _dst = runtime.path.join(env.get(_dir_name), _dir.bundle)
             else:
                 _dst = _dir.dir.format(**ENV_DICT)
-            _dir_name = 'DIR_ADDON_%s' % _dir.name.upper()
+            _dir_name = 'DIR_BUNDLE_%s' % _dir.name.upper()
             ENV_DICT[_dir_name] = _dst
             if not os.path.exists(_dst):
                 os.makedirs(_dst)
         for name, _dir in ENV_DICT.items():
-            if name.startswith('DIR_ADDON') and not os.path.exists(_dir):
+            if name.startswith('DIR_BUNDLE') and not os.path.exists(_dir):
                 os.makedirs(_dir)
         cmd = self.start.format(**ENV_DICT)
         _env = self.env
@@ -140,7 +140,7 @@ class Service(object):
             return
 
         ENV_DICT = env.all_dict()
-        ENV_DICT['DIR_ADDON'] = runtime.path.join(env.get('dir_addons'), self.name)
+        ENV_DICT['DIR_BUNDLE'] = runtime.path.join(env.get('dir_bundles'), self.name)
         _real_exe = self.start.split()[0].format(**ENV_DICT)
         for _p in psutil.process_iter():
             try:
@@ -193,13 +193,13 @@ class Settings(object):
     key = Unicode()
     value = Unicode()
 
-class Addon(object):
-    __storm_table__ = 'addons'
+class Bundle(object):
+    __storm_table__ = 'bundles'
 
     name = Unicode(primary=True)
     description = Unicode()
-    directories = ReferenceSet(name, Directory.addon)
-    options = ReferenceSet(name, Option.addon)
+    directories = ReferenceSet(name, Directory.bundle)
+    options = ReferenceSet(name, Option.bundle)
 
     def directories_env(self):
         _env = {}
@@ -210,10 +210,10 @@ class Addon(object):
 
             if _dir.dir is None:
                 _dir_name = 'dir_%s' % _dir.name
-                _dst = runtime.path.join(env.get(_dir_name), _dir.addon)
+                _dst = runtime.path.join(env.get(_dir_name), _dir.bundle)
             else:
                 _dst = _dir.dir.format(**ENV_DICT)
-            _dir_name = 'DIR_ADDON_%s' % _dir.name
+            _dir_name = 'DIR_BUNDLE_%s' % _dir.name
             _env[_dir_name.upper()] = _dst
         return _env
 
@@ -226,7 +226,7 @@ class Addon(object):
 
     def env(self, additional=False):
         _env = {
-            'DIR_ADDON': runtime.path.join(env.get('dir_addons'), self.name),
+            'DIR_BUNDLE': runtime.path.join(env.get('dir_bundles'), self.name),
         }
         for k, v in os.environ.items():
             if k.startswith(env.PREFIX):

@@ -11,15 +11,15 @@ import storage
 from ctl import gen_config
 from module import service
 from module.schema import Service, Option, all_services_exe
-from core import activity
-from websocket import channel
+# from core import activity
+# from websocket import channel
 from core.greentornado import greenify
 from tornadio2 import SocketConnection, TornadioRouter, SocketServer, event
 
-handlers = {
-    'services_activity': activity.ServicesActivity,
-}
-channel.bootstrap(handlers)
+# handlers = {
+#     'services_activity': activity.ServicesActivity,
+# }
+# channel.bootstrap(handlers)
 
 logger = logging.getLogger()
 store = storage.get_store()
@@ -100,9 +100,7 @@ class SocketIOHandler(SocketConnection):
                     _exe = p.exe
                     if _exe in exe2services:
                         items[exe2services.get(_exe)]['running'] = True
-                except psutil.error.AccessDenied:
-                    pass
-                except psutil.error.NoSuchProcess:
+                except (psutil.error.AccessDenied, psutil.error.NoSuchProcess):
                     pass
                 except Exception, e:
                     logger.error(e)

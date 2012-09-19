@@ -110,6 +110,7 @@ $(document).ready(function(){
     $('#options-table').dataTable({
         "sDom": "<'row'<'span8'l><'span8'f>r>t<'row'<'span8'i><'span8'p>>",
         "sPaginationType": "bootstrap",
+        "bPaginate": false,
         "iDisplayLength": 50
     }).makeEditable({
         sUpdateURL: "/options",

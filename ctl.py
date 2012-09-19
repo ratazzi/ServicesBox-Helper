@@ -40,7 +40,7 @@ from runtime import env
 runtime.path.bootstrap()
 import storage
 from module import service
-from module.schema import Addon, Option, Service, Directory
+from module.schema import Bundle, Option, Service, Directory
 
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 
@@ -61,28 +61,28 @@ logger.debug(pformat(env.all_dict()))
 
 store = storage.get_store()
 
-def _load_addon(addon_desc):
-    # pprint(addon_desc)
-    print "register addon `%s'" % addon_desc['name']
-    _addon = store.find(Addon, Addon.name == addon_desc['name']).one() or Addon()
-    _addon.name = addon_desc['name']
-    _addon.description = addon_desc['description']
-    store.add(_addon)
+def _load_bundle(bundle_desc):
+    # pprint(bundle_desc)
+    print "register bundle `%s'" % bundle_desc['name']
+    _bundle = store.find(Bundle, Bundle.name == bundle_desc['name']).one() or Bundle()
+    _bundle.name = bundle_desc['name']
+    _bundle.description = bundle_desc['description']
+    store.add(_bundle)
 
-    if 'options' in addon_desc:
-        for _option_desc in addon_desc['options']:
-            _option = store.find(Option, Option.name == _option_desc['name'], Option.addon == addon_desc['name']).one() or Option()
+    if 'options' in bundle_desc:
+        for _option_desc in bundle_desc['options']:
+            _option = store.find(Option, Option.name == _option_desc['name'], Option.bundle == bundle_desc['name']).one() or Option()
             _option.name = _option_desc['name']
-            _option.addon = addon_desc['name']
+            _option.bundle = bundle_desc['name']
             _option.description = _option_desc.get('description', _option_desc['name'])
             _option.value = unicode(_option_desc['value'])
             store.add(_option)
 
-    if 'service' in addon_desc:
-        _service_desc = addon_desc['service']
-        _service = store.find(Service, Service.name == addon_desc['name']).one() or Service()
-        _service.name = addon_desc['name']
-        _service.addon = addon_desc['name']
+    if 'service' in bundle_desc:
+        _service_desc = bundle_desc['service']
+        _service = store.find(Service, Service.name == bundle_desc['name']).one() or Service()
+        _service.name = bundle_desc['name']
+        _service.bundle = bundle_desc['name']
         _service.description = _service_desc['description']
         _service.start = _service_desc['start']
         _service.stop = _service_desc['stop']
@@ -92,11 +92,11 @@ def _load_addon(addon_desc):
         _service.autostart = _service_desc.get('autostart', True)
         store.add(_service)
 
-    if 'directories' in addon_desc:
-        for _dir_desc in addon_desc['directories']:
-            _dir = store.find(Directory, Directory.name == _dir_desc['name'], Directory.addon == addon_desc['name']).one() or Directory()
+    if 'directories' in bundle_desc:
+        for _dir_desc in bundle_desc['directories']:
+            _dir = store.find(Directory, Directory.name == _dir_desc['name'], Directory.bundle == bundle_desc['name']).one() or Directory()
             _dir.name = _dir_desc['name']
-            _dir.addon = addon_desc['name']
+            _dir.bundle = bundle_desc['name']
             _dir.dir = _dir_desc.get('dir', None)
             _dir.permission = _dir_desc.get('permission', u'0755')
             _dir.description = _dir_desc['description']
@@ -104,9 +104,9 @@ def _load_addon(addon_desc):
     store.commit()
 
     # copy data
-    if 'data' in addon_desc:
-        _env = _addon.env(True)
-        data = addon_desc['data']
+    if 'data' in bundle_desc:
+        _env = _bundle.env(True)
+        data = bundle_desc['data']
         src = data['src'].format(**_env)
         dst = data['dst'].format(**_env)
         if os.path.exists(dst) and len(os.listdir(dst)) == 0:
@@ -116,26 +116,26 @@ def _load_addon(addon_desc):
             shutil.copytree(src, dst)
 
     # # bin symlink
-    addon_bin_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'bin')
+    bundle_bin_dir = runtime.path.join(env.get('dir_bundles'), _bundle.name, 'bin')
     if not os.path.exists(env.get('dir_bin')):
         os.makedirs(env.get('dir_bin'))
-    if os.path.exists(addon_bin_dir):
-        for item in os.listdir(addon_bin_dir):
+    if os.path.exists(bundle_bin_dir):
+        for item in os.listdir(bundle_bin_dir):
             dst = runtime.path.join(env.get('dir_bin'), item)
             if item in ('.DS_Store'):
                 continue
             if os.path.islink(dst) or os.path.isfile(dst):
                 os.unlink(dst)
-            os.symlink(runtime.path.join(addon_bin_dir, item), dst)
+            os.symlink(runtime.path.join(bundle_bin_dir, item), dst)
 
     # # lib symlink
-    addon_lib_dir = runtime.path.join(env.get('dir_addons'), _addon.name, 'lib')
-    lib_dir = runtime.path.join(env.get('dir_addons'), 'lib')
+    bundle_lib_dir = runtime.path.join(env.get('dir_bundles'), _bundle.name, 'lib')
+    lib_dir = runtime.path.join(env.get('dir_bundles'), 'lib')
     if not os.path.exists(lib_dir):
         os.makedirs(lib_dir)
-    if os.path.exists(addon_lib_dir):
-        for item in os.listdir(addon_lib_dir):
-            src = runtime.path.join(addon_lib_dir, item)
+    if os.path.exists(bundle_lib_dir):
+        for item in os.listdir(bundle_lib_dir):
+            src = runtime.path.join(bundle_lib_dir, item)
             dst = runtime.path.join(lib_dir, item)
             if item in ('.DS_Store'):
                 continue
@@ -145,12 +145,12 @@ def _load_addon(addon_desc):
                 continue
             os.symlink(src, dst)
 
-def load_addons():
-    for addon_desc in runtime.path.all_addons_desc():
-        print "processing `%s'" % addon_desc
-        with open(addon_desc, 'r') as fp:
-            _addon_desc = yaml.load(fp.read())
-            _load_addon(_addon_desc)
+def load_bundles():
+    for bundle_desc in runtime.path.all_bundles_desc():
+        print "processing `%s'" % bundle_desc
+        with open(bundle_desc, 'r') as fp:
+            _bundle_desc = yaml.load(fp.read())
+            _load_bundle(_bundle_desc)
 
 def gen_config():
     for item in os.listdir(env.get('dir_config')):
@@ -159,14 +159,14 @@ def gen_config():
             os.remove(_path)
         else:
             shutil.rmtree(_path)
-    for addon_desc in runtime.path.all_addons_desc():
+    for bundle_desc in runtime.path.all_bundles_desc():
         ENV_DICT = env.all_dict()
-        with open(addon_desc, 'r') as fp:
-            _addon_desc = yaml.load(fp.read())
-            _addon = store.find(Addon, Addon.name == _addon_desc['name']).one()
-            # _addon = addon.get(_addon_desc['name'])
-            ENV_DICT.update(_addon.env())
-            for _conf in _addon_desc.get('conf', []):
+        with open(bundle_desc, 'r') as fp:
+            _bundle_desc = yaml.load(fp.read())
+            _bundle = store.find(Bundle, Bundle.name == _bundle_desc['name']).one()
+            # _bundle = bundle.get(_bundle_desc['name'])
+            ENV_DICT.update(_bundle.env())
+            for _conf in _bundle_desc.get('conf', []):
                 src = _conf['src'].format(**ENV_DICT)
                 dst = _conf['dst'].format(**ENV_DICT)
                 dst_dir = os.path.dirname(dst)
@@ -225,11 +225,11 @@ def do_service(options):
         print 'do nothing.'
 
 def do_repair(options=dict()):
-    load_addons()
+    load_bundles()
     # virtaul env
     shutil.copy(runtime.path.resources_path('activate'), runtime.path.join(env.get('dir_bin'), 'activate'))
-    for _addon in store.find(Addon):
-        runtime.path.process_addon_dirs(_addon)
+    for _bundle in store.find(Bundle):
+        runtime.path.process_bundle_dirs(_bundle)
     gen_config()
 
 def main():
