@@ -183,7 +183,7 @@ class Session(sessioncontainer.SessionBase):
         `pack`
             Encoded socket.io message
         """
-        logging.debug('<<< ' + pack)
+        # logging.debug('<<< ' + pack)
 
         # TODO: Possible optimization if there's on-going connection - there's no
         # need to queue messages?
@@ -345,7 +345,7 @@ class Session(sessioncontainer.SessionBase):
             Raw socket.io message to handle
         """
         try:
-            logging.debug('>>> ' + msg)
+            # logging.debug('>>> ' + msg)
 
             parts = msg.split(':', 3)
             if len(parts) == 3:

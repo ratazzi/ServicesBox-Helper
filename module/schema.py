@@ -6,6 +6,7 @@ import eventlet
 import logging
 import traceback
 import json
+import signal
 from eventlet.green import os
 from eventlet.green import subprocess
 from storm.locals import Reference, ReferenceSet
@@ -142,10 +143,14 @@ class Service(object):
         ENV_DICT = env.all_dict()
         ENV_DICT['DIR_BUNDLE'] = runtime.path.join(env.get('dir_bundles'), self.name)
         _real_exe = self.start.split()[0].format(**ENV_DICT)
+
+        # for normal services
         for _p in psutil.process_iter():
             try:
+                # logger.debug('%d %s' % (_p.pid, _p.exe))
                 if _p.exe == _real_exe:
                     runtime.einfo(_p.pid)
+                    logger.debug('kill %d [%s]' % (_p.pid, self.name))
                     _p.terminate()
                     _p.wait()
                     logger.info(_p.status)
@@ -153,21 +158,21 @@ class Service(object):
                 pass
             except Exception, e:
                 runtime.eerror(e)
-                traceback.print_exc()
+                logger.error(traceback.format_exc())
 
-        # if not _process:
-        #     sys.stderr.write("service `%s' is not running.%s" % (self.name, os.linesep))
-        #     sys.stderr.flush()
+        # for setuid services
+        logger.debug("find process via `ps ax'")
+        for line in subprocess.check_output(['ps', 'ax']).split(os.linesep):
+            try:
+                parts = line.strip().split()
+                if len(parts) > 4 and parts[4] == _real_exe:
+                    logger.debug(parts)
+                    logger.debug('kill %s [%s]' % (parts[0], self.name))
+                    os.kill(int(parts[0]), signal.SIGTERM)
+            except Exception, e:
+                logger.error(e)
+
         runtime.einfo("stop service `%s'." % self.name)
-        # print repr(_process.get_children())
-        # for _child in _process.get_children():
-        #     _exe = _child.cmdline[0].replace(os.path.sep, '/').replace('.exe', '')
-        #     print _exe
-        #     logger.debug(_exe)
-        #     if _exe == _real_exe:
-        #         logger.info("terminate child process `%s', pid %d." % (_exe, _child.pid))
-        #         _child.terminate()
-        # _process.terminate()
 
     def _restart(self, **kwargs):
         self._stop()

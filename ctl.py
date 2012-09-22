@@ -7,6 +7,7 @@
     ctl.py service [--restart=NAME | --restart-all] [-v | --verbose] [-d | --debug]
     ctl.py service [--running | --list] [-v | --verbose] [-d | --debug]
     ctl.py repair  [-v | --verbose] [-d | --debug]
+    ctl.py dylib
     ctl.py version
     ctl.py test
 
@@ -17,7 +18,7 @@ import yaml
 import logging
 import logging.handlers
 logger = logging.getLogger()
-from eventlet.green import os
+from eventlet.green import os, subprocess
 from yaml import Loader, SafeLoader
 
 # force PyYAML to load strings as unicode objects
@@ -33,7 +34,7 @@ import traceback
 import json
 from tornado import template
 from docopt import docopt
-from pprint import pformat
+from pprint import pformat, pprint
 
 import runtime.path
 from runtime import env
@@ -232,6 +233,34 @@ def do_repair(options=dict()):
         runtime.path.process_bundle_dirs(_bundle)
     gen_config()
 
+def fixed_dylib(dylibs, environ):
+    for _dylib in dylibs:
+        _dylib = _dylib.format(**environ)
+        logger.debug("fixed dylib `%s'" % _dylib)
+        cmd = ['otool', '-L', _dylib]
+        for line in subprocess.check_output(cmd).replace('\t', '').split(os.linesep):
+            if line.startswith('@rpath'):
+                logger.debug('dylib info: %s' % line)
+                old_rpath = line.split()[0]
+                filename = old_rpath.split(os.path.sep)[-1]
+                new_rpath = os.path.join(environ['DIR_BUNDLES'], 'lib', filename)
+                logger.debug('old rpath: %s' % old_rpath)
+                logger.debug('new rpath: %s' % new_rpath)
+                logger.debug('verify new rpath: %s' % os.path.isfile(new_rpath))
+                cmd = ['install_name_tool', '-change', old_rpath, new_rpath, _dylib]
+                logger.debug('run command: %s' % ' '.join(cmd))
+                logger.debug(subprocess.check_output(cmd))
+
+def do_dylib(options=dict()):
+    for bundle_desc in runtime.path.all_bundles_desc():
+        with open(bundle_desc, 'r') as fp:
+            _bundle_desc = yaml.load(fp.read())
+            _bundle = store.find(Bundle, Bundle.name == _bundle_desc['name']).one()
+            dylibs = _bundle_desc.get('fixed_dylib', [])
+            if len(dylibs):
+                _environ = _bundle.env()
+                fixed_dylib(dylibs, _environ)
+
 def main():
     storage.init()
 
@@ -241,11 +270,8 @@ def main():
         do_service(options)
     elif options['repair']:
         do_repair(options)
-    elif options['test']:
-        from pprint import pprint
-        from core import activity
-        pprint(activity.services_activity())
-        exit(0)
+    elif options['dylib']:
+        do_dylib(options)
 
 if __name__ == '__main__':
     main()

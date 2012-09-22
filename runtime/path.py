@@ -36,7 +36,7 @@ def bootstrap():
     env.add('dir_config', os.path.join(env.get('dir_library'), 'etc'))
     env.add('dir_bin', os.path.join(env.get('dir_library'), 'bin'))
     env.add('dir_tmp', os.path.join(env.get('dir_library'), 'tmp'))
-    env.add('dir_data', os.path.join(env.get('dir_library'), 'var', 'lib'))
+    env.add('dir_data', os.path.join(env.get('dir_library'), 'data'))
     env.add('dir_log', os.path.join(env.get('dir_library'), 'var', 'log'))
     env.add('dir_run', os.path.join(env.get('dir_library'), 'var', 'run'))
 
