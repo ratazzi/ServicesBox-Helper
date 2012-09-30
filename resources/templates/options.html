@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" type="text/less" media="screen"  href="{{ static_url('options.less') }}" />
+<link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('options.css') }}" />
 <script type="text/javascript" src="{{ static_url('DataTables/jquery.dataTables.min.js') }}"></script>
 <script type="text/javascript" src="{{ static_url('DataTables/jquery.jeditable.js') }}"></script>
 <script type="text/javascript" src="{{ static_url('DataTables/jquery-ui.js') }}"></script>
@@ -11,47 +11,45 @@
 {% endblock %}
 
 {% block content %}
-<div id="content" class="span9">
-    <div class="span8">&nbsp;</div>
+<div id="content">
+    <div class="content-fluid">
+        <div>&nbsp;</div>
 
-    <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
-        <div>
-            <div style="float: left; line-height: 150%; font-size: 20px;">Regenerate configure files:&nbsp;&nbsp;</div>
-            <div id="auto_regen" class="btn-group" style="width: auto; float: left;">
-                <button rel="automatic" class="btn{% if auto_regen %} active{% endif %}">Automatic</button>
-                <button rel="manual" class="btn{% if not auto_regen %} active{% endif %}">Manual</button>
+        <div style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
+            <div>
+                <div id="auto_regen" class="btn-group" style="width: auto; float: right;">
+                    <button rel="automatic" class="btn{% if auto_regen %} active{% endif %}">{{ _('Automatic') }}</button>
+                    <button rel="manual" class="btn{% if not auto_regen %} active{% endif %}">{{ _('Manual') }}</button>
+                </div>
             </div>
+            <div>&nbsp;</div>
         </div>
-    </div>
-    <div class="span8">
-        <div class="alert alert-info">
-            <strong>Notice:</strong> Just regenerate configure files, You need restart services to apply.
+
+        <div id="options">
+            <table id="options-table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Bundle</th>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for option in options %}
+                    <tr id="{{ option.id }}">
+                        <td class="readonly">{{ option.id }} </td>
+                        <td class="bundle-name readonly">{{ option.bundle }}</td>
+                        <td class="option-name readonly">{{ option.name }}</td>
+                        <td class="option-value">{{ option.value }}</td>
+                        <td class="option-description readonly">{{ option.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div id="options" class="span8">
-        <table id="options-table" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Bundle</th>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for option in options %}
-                <tr id="{{ option.id }}">
-                    <td class="readonly">{{ option.id }} </td>
-                    <td class="bundle-name readonly">{{ option.bundle }}</td>
-                    <td class="option-name readonly">{{ option.name }}</td>
-                    <td class="option-value">{{ option.value }}</td>
-                    <td class="option-description readonly">{{ option.description }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
 {% endblock %}

@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block content %}
-<div id="content" class="span9">
-    <div class="span8">&nbsp;</div>
-    <div id="activity">
+<div id="content">
+    <div>&nbsp;</div>
+    <div id="activity" class="content-fluid">
 
-        <div class="span8" style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px;">
+        <div style="border-bottom: 1px solid #e5e5e5; padding-bottom: 20px; margin-bottom: 20px; min-height: 30px;">
             <div style="float: right;">
                 <button id="start-all-services" class="btn">{{ _('Start all services') }}</button>
                 <button id="stop-all-services" class="btn">{{ _('Stop all services') }}</button>
@@ -20,9 +20,9 @@
         </div>
 
         {% for service in services %}
-        <div id="{{ service.name }}" class="span9 event_">
-            <div class="span1"><i class="icon-{%if service.name in runnings %}play{% else %}stop{% endif %} status" style="font-size: 48px;"></i></div>
-            <div class="span6">
+        <div id="{{ service.name }}" class="service-item">
+            <div class="span1 service-box-left"><i class="icon-{%if service.name in runnings %}play{% else %}stop{% endif %} status" style="font-size: 48px;"></i></div>
+            <div class="service-box-right">
                 <h4>{{ service.name }}</h4>
                 <p>{{ service.description }}</p>
                 <div>
@@ -31,10 +31,10 @@
                         <button class="btn stop-service{%if service.name not in runnings %} active{% endif %}" name="{{ service.name }}">{{ _('Stop') }}</button>
                     </div>
                     <div style="float: left;">
-                        <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>{{ _('Restart') }}</button>
+                        <button class="btn restart-service" name="{{ service.name }}" style="margin-left: 10px;"><i class="icon-attention"></i>&nbsp;{{ _('Restart') }}</button>
                     </div>
                     <div class="btn-group" style="width: auto; float: right;">
-                        <button data-toggle="dropdown" class="btn dropdown-toggle">{{ _('Other') }}<span class="caret"></span></button>
+                        <button data-toggle="dropdown" class="btn dropdown-toggle">{{ _('Other') }}&nbsp;<span class="caret"></span></button>
                         <ul class="dropdown-menu service-other-dropdown">
                             <li><a href="javascript:void(0);" rel="{{ service.name }}" class="toggle-enable-service"><i class="icon-{% if service.enable %}ok{% else %}cancel{% endif %}"></i>{{ _('Enable') }}</a></li>
                             <li><a href="javascript:void(0);" rel="{{ service.name }}" class="toggle-autostart-service"><i class="icon-{% if service.autostart %}ok{% else %}cancel{% endif %}"></i>{{ _('Auto start') }}</a></li>
@@ -43,6 +43,7 @@
                     </div>
                 </div>
             </div>
+            <div style="clear: both;"></div>
         </div>
         {% endfor %}
 

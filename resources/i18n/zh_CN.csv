@@ -1,3 +1,5 @@
+"Services", 服务管理
+"Options", 选项设置
 "Start", 启动
 "Stop", 停止
 "Restart", 重启
@@ -7,3 +9,5 @@
 "Auto start", 自动启动
 "Enable", 启用
 "Other", 其他
+"Automatic", 自动
+"Manual", 手动

@@ -2,16 +2,16 @@
 # coding=utf-8
 
 """Usage:
-    app [--bind=ADDRESS] [--port=PORT] [-v | --verbose] [-d | --debug]
+    dashboard [--bind=ADDRESS] [--port=PORT] [-v | --verbose] [-d | --debug]
 
 """
 
-from eventlet.green import os
 import logging
+import locale
 import traceback
 import tornado.web
-import tornado.wsgi
 import tornado.locale
+from eventlet.green import os
 from jinja2 import Environment, FileSystemLoader
 from docopt import docopt
 from tornadio2 import TornadioRouter, SocketServer
@@ -35,29 +35,6 @@ from module.store import Store
 
 tornado.locale.load_translations(runtime.path.resources_path('i18n', True))
 
-class Application(tornado.wsgi.WSGIApplication):
-    def __init__(self):
-        handlers = [
-            # (r'/websocket/.*', handler.ActivityHandler),
-            (r'/api/service', handler.ServiceHandler),
-            (r'/api/store', handler.StoreHandler),
-            (r'/options', handler.OptionsHandler),
-            (r'/.*', handler.MainHandler),
-        ]
-        settings = dict(
-            template_path=runtime.path.resources_path('templates'),
-            static_path=runtime.path.resources_path('static'),
-            cookie_secret='11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=',
-            login_url='/signin/',
-            debug=True,
-        )
-        tornado.wsgi.WSGIApplication.__init__(self, handlers, **settings)
-
-        self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
-        # self.jinja.filters['timeline'] = timeline
-        self.locale = tornado.locale.get('zh_CN')
-        self.store = Store()
-
 class SocketIOApplication(tornado.web.Application):
     def __init__(self, **settings):
         params = dict(
@@ -73,8 +50,8 @@ class SocketIOApplication(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
         self.jinja = Environment(loader=FileSystemLoader(settings['template_path']))
-        # self.jinja.filters['timeline'] = timeline
-        self.locale = tornado.locale.get('zh_CN')
+        tornado.locale.set_default_locale('en_US')
+        self.locale = tornado.locale.get(locale.getdefaultlocale()[0])
         self.store = Store()
 
 if __name__ == '__main__':
@@ -90,7 +67,6 @@ if __name__ == '__main__':
             template_path=runtime.path.resources_path('templates'),
             static_path=runtime.path.resources_path('static'),
             cookie_secret='11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=',
-            login_url='/signin/',
             flash_policy_port=1843,
             # flash_policy_file=,
             socket_io_port=port,

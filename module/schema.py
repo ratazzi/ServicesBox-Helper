@@ -11,7 +11,6 @@ from eventlet.green import os
 from eventlet.green import subprocess
 from storm.locals import Reference, ReferenceSet
 from storm.locals import Int, Unicode, JSON, Bool
-# from eventlet.green import os, subprocess
 
 import storage
 import runtime
@@ -48,11 +47,7 @@ def list_running_services():
                 if name in rs:
                     continue
                 rs.append(name)
-        except psutil.AccessDenied:
-            pass
-        except SystemError:
-            pass
-        except IndexError:
+        except (psutil.AccessDenied, SystemError, IndexError):
             pass
         except Exception, e:
             runtime.eerror(e)

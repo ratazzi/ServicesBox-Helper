@@ -7,7 +7,7 @@
         <title></title>
         <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('bootstrap.css') }}" />
         <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('fontllo.css') }}" />
-        <link rel="stylesheet" type="text/less" media="screen"  href="{{ static_url('style.less') }}" />
+        <link rel="stylesheet" type="text/css" media="screen"  href="{{ static_url('style.css') }}" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <script type="text/javascript" src="{{ static_url('jquery.min.js') }}"></script>
         <script type="text/javascript" src="{{ static_url('bootstrap.min.js') }}"></script>
@@ -16,10 +16,21 @@
     </head>
 
     <body>
-        <div class="container">
-            <!-- begin sidebar -->
-            {% include 'sidebar.html' %}
-            <!-- end sidebar -->
+        <div class="container" style="width: 100%;">
+
+            <div id="header" style="text-align: center;">
+                <div class="navbar" style="margin-bottom: 0;">
+                    <div class="navbar-inner">
+                        <div class="span5">
+                            <ul class="nav">
+                                <li class="active"><a href="/">{{ _('Services') }}</a></li>
+                                <li><a href="/options">{{ _('Options') }}</a></li>
+                            </ul>
+                        </div>
+                        <a class="btn btn-square reload" href="#"><i class="icon-cw-2"></i></a>
+                    </div>
+                </div>
+            </div>
 
             <!-- begin content -->
             {% block content %}
@@ -27,7 +38,19 @@
             <!-- end content -->
 
         </div>
-        <script type="text/javascript" src="{{ static_url('less-1.3.0.min.js') }}"></script>
+        <script type="text/javascript">
+        $(document).ready(function(){
+            $('.navbar-inner .nav li').each(function(){
+                if ($(this).children('a').attr('href') == '{{ handler.request.path }}') {
+                    $(this).addClass('active').siblings().removeClass('active');
+                }
+            });
+
+            $('a.reload').click(function(){
+                location.reload();
+            });
+        });
+        </script>
     </body>
 </html>
 {# vim: set ft=jinja: #}

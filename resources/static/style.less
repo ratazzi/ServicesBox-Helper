@@ -7,65 +7,92 @@
     opacity: 0.0001;
 }
 
+.btn-square {
+    padding: 4px 10px;
+}
+
 body {
     background-image: url("img/bg.png");
-}
-
-div#sidebar, div#content {
-    background-color: #fefefe;
-    border-radius: 5px 5px 5px 5px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    margin: 20px 0px 20px 0px;
-    /* padding: 10px */
-}
-
-div#content, div#sidebar {
-    min-height: 600px;
-}
-
-div#content {
-    margin-left: 20px;
-}
-
-div#sidebar li {
-    line-height: 160%;
-}
-
-div#activity div.event_ {
-    margin: 0 0 20px 0;
-    list-style: none;
-    border-bottom: 1px solid #cccccc;
-    font-family: "Helvetica Neue","Luxi Sans","DejaVu Sans",Tahoma,"Hiragino Sans GB",STHeiti !important;
-    font-size: 14px;
-    line-height: 160%;
-}
-
-div.event_ div.span6 {
-    padding-bottom: 20px;
-}
-
-div#activity div.event_:last-child {
-    border:0;
-}
-
-div.event_ p {
-    font-size: inherit;
-    line-height: inherit;
-}
-
-div.event_ h4 {
-    margin-bottom: 10px;
 }
 
 code {
     .fixed-font;
 }
 
-div#options table td{
-    font-size: 12px;
-    .fixed-font;
+div#header a.reload {
+    float: right;
+}
+
+div#header .nav a {
+    margin-top: 5px;
+    padding: 5px 20px;
+    border-radius: 15px;
+}
+
+div#header .navbar-inner {
+    border: 0;
+    border-radius: 0;
+}
+
+div#header .navbar-inner div.span5 {
+    margin-left: 20%;
+}
+
+div.content-fluid {
+    margin: 0 auto;
+    width: 89%;
+}
+
+div#content {
+    background-color: #fefefe;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    min-height: 600px;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+}
+
+div#activity div.service-item {
+    margin: 0 0 20px 0;
+    list-style: none;
+    border-bottom: 1px solid #cccccc;
+    font-family: "Helvetica Neue","Luxi Sans","DejaVu Sans",Tahoma,"Hiragino Sans GB",STHeiti !important;
+    font-size: 14px;
+    line-height: 160%;
+    padding-bottom: 40px;
+}
+
+div.service-item div.service-box-right {
+    width: 80%;
+    float: left;
+    display: block;
+}
+
+div.service-item div.span6 {
+    padding-bottom: 20px;
+}
+
+div#activity div.service-item:last-child {
+    border:0;
+    margin-bottom: 0;
+    padding-bottom: 40px;
+}
+
+div.service-item p {
+    font-size: inherit;
+    line-height: inherit;
+}
+
+div.service-item h4 {
+    margin-bottom: 10px;
 }
 
 ul.service-other-dropdown i.icon-cancel {
     .transparent;
+}
+
+div#options table td{
+    font-size: 12px;
+    .fixed-font;
 }

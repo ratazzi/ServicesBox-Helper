@@ -6,5 +6,6 @@
 *.db-journal
 dashboard
 warn*.txt
+lastmodified
 build
 dist

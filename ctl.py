@@ -2,14 +2,14 @@
 # coding=utf-8
 
 """Usage:
-    ctl.py service [--start=NAME | --start-all] [-v | --verbose] [-d | --debug]
-    ctl.py service [--stop=NAME | --stop-all] [-v | --verbose] [-d | --debug]
-    ctl.py service [--restart=NAME | --restart-all] [-v | --verbose] [-d | --debug]
-    ctl.py service [--running | --list] [-v | --verbose] [-d | --debug]
-    ctl.py repair  [-v | --verbose] [-d | --debug]
-    ctl.py dylib
-    ctl.py version
-    ctl.py test
+    ctl service [--start=NAME | --start-all] [-v | --verbose] [-d | --debug]
+    ctl service [--stop=NAME | --stop-all] [-v | --verbose] [-d | --debug]
+    ctl service [--restart=NAME | --restart-all] [-v | --verbose] [-d | --debug]
+    ctl service [--running | --list] [-v | --verbose] [-d | --debug]
+    ctl repair  [-v | --verbose] [-d | --debug]
+    ctl dylib
+    ctl version
+    ctl test
 
 """
 
