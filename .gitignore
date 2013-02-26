@@ -9,3 +9,5 @@ warn*.txt
 lastmodified
 build
 dist
+resources/static/options.css
+resources/static/style.css
